@@ -83,7 +83,9 @@ ttest <- function(mod, data, base = NULL) {
   out$se <- unlist(stderr)
   new_levels <- c(base, treat[grep(paste0("[^", base, "]"), treat)])
   out$treat <- factor(treat, levels = new_levels)
-  class(out) <- append(class(out), "ttest")
+  out$outcome <- ylab
+  out <- out[, c("outcome", "treat", "mean", "se", "effect", "p.value")]
   # output
-  out[, c("treat", "mean", "se", "effect", "p.value")]
+  class(out) <- append("t_test", class(out))
+  out
 }
