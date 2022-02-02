@@ -196,6 +196,6 @@ power_analysis <- function(
     levels = c(base, treat)
   )
   # output
-  class(out) <- append("power.analysis", class(out))
+  class(out) <- append("power_analysis", class(out))
   out
 }
