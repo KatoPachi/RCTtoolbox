@@ -87,6 +87,7 @@ rct_plot <- function(...) {
 #' @importFrom ggplot2 geom_text
 #' @importFrom ggplot2 labs
 #' @importFrom ggplot2 coord_flip
+#' @importFrom forcats fct_rev
 #' @export
 #'
 #' @examples
@@ -131,10 +132,23 @@ rct_plot.t_test <- function(
       data$mean, data$se, data$effect, data$p.value,
       MoreArgs = list(label = label, digits = label_digits)
     )
+    data$labpos <- ifelse(
+      data$ymax < 0,
+      data$ymax - text_adjust,
+      data$ymax + text_adjust
+    )
   }
 
   # plot
-  plot <- ggplot2::ggplot(data, ggplot2::aes(x = treat, y = mean)) +
+  if (flip) {
+    plot <- ggplot2::ggplot(
+      data, ggplot2::aes(x = forcats::fct_rev(treat), y = mean)
+    )
+  } else {
+    plot <- ggplot2::ggplot(data, ggplot2::aes(x = treat, y = mean))
+  }
+
+  plot <- plot +
     ggplot2::geom_bar(
       stat = "identity", fill = "grey80", color = "black"
     ) +
@@ -148,7 +162,7 @@ rct_plot.t_test <- function(
   if (!is.null(label)) {
     plot <- plot +
       ggplot2::geom_text(
-        ggplot2::aes(y = ymax + text_adjust, label = label),
+        ggplot2::aes(y = labpos, label = label),
         size = text_size
       )
   }

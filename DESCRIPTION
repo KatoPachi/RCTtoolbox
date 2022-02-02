@@ -16,6 +16,7 @@ RoxygenNote: 7.1.1
 Imports: 
     broom (>= 0.7.9),
     dplyr (>= 1.0.7),
+    forcats (>= 0.5.1),
     ggplot2 (>= 3.3.5),
     grid,
     stats
