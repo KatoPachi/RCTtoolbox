@@ -10,10 +10,68 @@
   digits = 3,
   title = NULL,
   output,
-  footnote,
-  size = 13
+  footnote = NULL,
+  size = 15,
+  ...
 )
 }
+\arguments{
+\item{data}{dataframe with class "power_analysis"}
+
+\item{target}{character. Specify which value to output.
+If "d", the effect size is output.
+If "unstd_d", the non-standarized effect size
+(i.e., absolute value of mean difference) is output.
+If "alpha", the significant level is output.
+If "power", the power is output.}
+
+\item{digits}{numeric.
+Specify the number of decimal places to display (Default is 3).}
+
+\item{title}{character. Table title.}
+
+\item{output}{character. Output format. This functions supports
+"kableExtra", "flextable", and "data.frame"}
+
+\item{footnote}{character. Footnote.}
+
+\item{size}{numeric. Font size.}
+}
 \description{
-Output Table for Power Analysis
+This function outputs
+the result of power analysis in tabular form.
+For tabular output,
+this function uses the \code{datasummary} function of the {modelsummary} package
+that corresponds to various outputs.
+\code{rct_table.power_analysis} supports "kableExtra" (for PDF and HTML output),
+"flextable" (MS Word and MS Powerpoint), and "data.frame".
+}
+\examples{
+# DGP
+set.seed(120511)
+n <- 1000
+x1 <- rnorm(n); x2 <- rnorm(n)
+d <- sample(c("A", "B", "C"), size = n, replace = TRUE)
+
+ya <- 0.2 + 0.5 * x1 + 0.01 * x2
+yb <- 1.2 + 0.3 * x2
+yc <- -1 - 0.2 * x1 + 0.5 * x2
+y <- ifelse(d == "A", ya, ifelse(d == "B", yb, yc))
+dt <- data.frame(y, d, x1, x2)
+
+# power analysis with variance assumption
+tmp <- power_analysis(~d, dt, alpha = 0.05, power = 0.8, std_dev = 0.2)
+rct_table(
+  tmp,
+  title = paste(
+    "Power Analysis:",
+    "Least Mean Difference to Keep 80\% Power and 5\% Significant Level"
+  ),
+  footnote = paste(
+    "Note: To calculate mean difference,",
+    "we assume that standard deviation of outcome is 0.2."
+  ),
+  output = "kableExtra"
+)
+
 }
