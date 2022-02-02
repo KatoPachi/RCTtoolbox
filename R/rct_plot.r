@@ -25,11 +25,12 @@
 #' dt <- data.frame(y, d, x1, x2)
 #'
 #' # plot of result of t-test
-#' ttest(y ~ d, dt) %>%
-#'   rct_plot(
-#'     label = "{{mean}}[{{effect}}{{star}}]",
-#'     title = "Simulated Outcome"
-#'   )
+#' t <- ttest(y ~ d, dt)
+#' rct_plot(
+#'   t,
+#'   label = "{{mean}} [{{effect}}{{star}}]",
+#'   title = "Simulated Outcome"
+#' )
 #'
 rct_plot <- function(...) {
   UseMethod("rct_plot")
@@ -75,6 +76,8 @@ rct_plot <- function(...) {
 #' Combining these four, you specify the output of the text.
 #' For example, if the mean is 0.5 and its standard error is 0.1,
 #' then specifying "\{\{mean\}\}(\{\{se\}\})" will embed "0.5(0.1)" in the plot.
+#' You can use the `label_digits` argument to specify
+#' the number of decimal places to display (Default is 3).
 #' The font size of label can by specified by `text_size` argument.
 #' The default is 5.
 #'
@@ -105,11 +108,12 @@ rct_plot <- function(...) {
 #' dt <- data.frame(y, d, x1, x2)
 #'
 #' # plot of result of t-test
-#' ttest(y ~ d, dt) %>%
-#'   rct_plot(
-#'     label = "{{mean}} [{{effect}}{{star}}]",
-#'     title = "Simulated Outcome"
-#'   )
+#' t <- ttest(y ~ d, dt)
+#' rct_plot(
+#'   t,
+#'   label = "{{mean}} [{{effect}}{{star}}]",
+#'   title = "Simulated Outcome"
+#' )
 #'
 rct_plot.t_test <- function(
   data, confint = FALSE,
@@ -120,6 +124,7 @@ rct_plot.t_test <- function(
   font_family = NULL, flip = FALSE,
   ...
 ) {
+  treat <- ymin <- ymax <- labpos <- NULL
   # errorbar
   z <- ifelse(confint, 1.96, 1)
   data$ymin <- data$mean - data$se * z

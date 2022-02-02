@@ -1,5 +1,13 @@
 #' Making label for Visualization
 #'
+#' @param label character. Specify label format.
+#' @param mean numeric. Specify outcome average.
+#' @param se numeric. Specify standard error of outcome average.
+#' @param effect numeric. Specify treatment effect.
+#' @param p numeric. Specify p-value of treatment effect.
+#' @param digits numeric. Specify how many decimal places to display.
+#' Default is 3.
+#'
 #'
 ttest_label_maker <- function(label, mean, se, effect, p, digits = 3) {
   decompose <- strsplit(label, "\\{\\{|\\}\\}")[[1]]

@@ -6,6 +6,20 @@
 \usage{
 ttest_label_maker(label, mean, se, effect, p, digits = 3)
 }
+\arguments{
+\item{label}{character. Specify label format.}
+
+\item{mean}{numeric. Specify outcome average.}
+
+\item{se}{numeric. Specify standard error of outcome average.}
+
+\item{effect}{numeric. Specify treatment effect.}
+
+\item{p}{numeric. Specify p-value of treatment effect.}
+
+\item{digits}{numeric. Specify how many decimal places to display.
+Default is 3.}
+}
 \description{
 Making label for Visualization
 }

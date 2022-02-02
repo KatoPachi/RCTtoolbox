@@ -73,6 +73,8 @@ If \{\{star\}\}, the p-value star of each group effect is embedded.
 Combining these four, you specify the output of the text.
 For example, if the mean is 0.5 and its standard error is 0.1,
 then specifying "\{\{mean\}\}(\{\{se\}\})" will embed "0.5(0.1)" in the plot.
+You can use the \code{label_digits} argument to specify
+the number of decimal places to display (Default is 3).
 The font size of label can by specified by \code{text_size} argument.
 The default is 5.
 }
@@ -91,10 +93,11 @@ y <- ifelse(d == "A", ya, ifelse(d == "B", yb, yc))
 dt <- data.frame(y, d, x1, x2)
 
 # plot of result of t-test
-ttest(y ~ d, dt) \%>\%
-  rct_plot(
-    label = "{{mean}} [{{effect}}{{star}}]",
-    title = "Simulated Outcome"
-  )
+t <- ttest(y ~ d, dt)
+rct_plot(
+  t,
+  label = "{{mean}} [{{effect}}{{star}}]",
+  title = "Simulated Outcome"
+)
 
 }

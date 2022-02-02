@@ -32,10 +32,11 @@ y <- ifelse(d == "A", ya, ifelse(d == "B", yb, yc))
 dt <- data.frame(y, d, x1, x2)
 
 # plot of result of t-test
-ttest(y ~ d, dt) \%>\%
-  rct_plot(
-    label = "{{mean}}[{{effect}}{{star}}]",
-    title = "Simulated Outcome"
-  )
+t <- ttest(y ~ d, dt)
+rct_plot(
+  t,
+  label = "{{mean}} [{{effect}}{{star}}]",
+  title = "Simulated Outcome"
+)
 
 }
