@@ -49,15 +49,21 @@ se <- function(x, na.rm = FALSE) {
 #' @importFrom dplyr bind_rows
 #' @export
 #' @examples
+#' # DGP
 #' set.seed(120511)
-#' a <- rnorm(100)
-#' b <- rnorm(100, mean = 2)
-#' c <- rnorm(100, mean = 2, sd = 2)
-#' ex <- data.frame(
-#'   y = c(a, b, c),
-#'   d = c(rep("A", 100), rep("B", 100), rep("C", 100))
-#' )
-#' ttest(y ~ d, ex, base = "B")
+#' n <- 1000
+#' x1 <- rnorm(n); x2 <- rnorm(n)
+#' d <- sample(c("A", "B", "C"), size = n, replace = TRUE)
+#'
+#' ya <- 0.2 + 0.5 * x1 + 0.01 * x2
+#' yb <- 1.2 + 0.3 * x2
+#' yc <- -1 - 0.2 * x1 + 0.5 * x2
+#' y <- ifelse(d == "A", ya, ifelse(d == "B", yb, yc))
+#'
+#' dt <- data.frame(y, d, x1, x2)
+#'
+#' # t-test
+#' ttest(y ~ d, dt)
 #'
 ttest <- function(mod, data, base = NULL) {
   # extract outcome and treatment variables label
