@@ -92,6 +92,8 @@ ftest <- function(mod, data) {
 #'
 #' balance_test(data = dt)
 #'
+#' clearRCTtool()
+#'
 #'
 balance_test <- function(mod, x = NULL, data) {
   # check options
@@ -116,7 +118,7 @@ balance_test <- function(mod, x = NULL, data) {
 
   }
 
-  if (!is.list(mod)) list(mod) else mod
+  mod <- if (!is.list(mod)) list(mod) else mod
 
   # implement F-test
   f <- lapply(mod, ftest, data)

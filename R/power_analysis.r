@@ -98,22 +98,19 @@ ttest_power <- function(
 #' If no outcome variable is specified,
 #' the standard deviation specified by the std_dev argument is used.
 #'
-#' @param mod formula. You can pass an one-sided formula `~ d` or
-#' two-sided formula `y ~ d` where
-#' `y` is outcome and `d` is treatments.
+#' @param mod formula. Specify one-sided formula `~ d`where
+#' `d` is treatments.
 #' @param data data which you want to use.
-#' @param base character. Name of the control.
+#' @param ctrl character. Name of the control.
 #' If NULL (default), the first level of the variable `d` is control.
 #' @param d numeric. Effect size.
 #' @param alpha numeric. Significant level.
 #' @param power numeric. Power.
-#' @param unstd_effect logical.
-#' Whether to calculate non-standarized effect.
-#' Default is TRUE.
 #' @param std_dev numeric.
-#' The standard deviation used when calculating the destandardized effect.
-#' If an outcome variable is specified,
-#' this argument is ignored and the actual standard deviation is used.
+#' The standard deviation used when calculating the unstandardized effect.
+#' If `std_dev` is numeric, then specified value is used to calculate.
+#' If `std_dev` is string, calculate standard deviation of specified variable
+#' and use it to calculate the unstandardized effect.
 #' Default is 0.5.
 #'
 #' @return tibble (and data.frame) with class "power.analysis"
@@ -137,64 +134,71 @@ ttest_power <- function(
 #' power_analysis(~d, dt, alpha = 0.05, power = 0.8, std_dev = 0.2)
 #'
 #' # power analysis with known variance
-#' power_analysis(y ~ d, dt, alpha = 0.05, power = 0.8)
+#' power_analysis(~d, dt, alpha = 0.05, power = 0.8, std_dev = "y")
+#'
+#' # If you pre-register models through options(),
+#' # balance test function is simply implemented.
+#' setRCTtool(RCTtool.treatment = ~ d)
+#' power_analysis(data = dt, alpha = 0.05, power = 0.8, std_dev = 0.2)
+#' clearRCTtool()
 #'
 #'
 power_analysis <- function(
-  mod, data, base = NULL,
+  mod, data, ctrl = NULL,
   d = NULL, alpha = NULL, power = NULL,
-  unstd_effect = TRUE, std_dev = 0.5
+  std_dev = 0.5
 ) {
-  # extract treatment and outcome labels
-  if (length(all.vars(mod)) > 1) {
-    ylab <- all.vars(mod)[1]
-    dlab <- all.vars(mod)[2]
-  } else {
-    ylab <- NULL
-    dlab <- all.vars(mod)[1]
-  }
-  # check factor of treatment variables
+  # option check
+  opt_check <- getOption("RCTtool.treatment") != ""
+
+  # use model
+  mod <- if (opt_check) getOption("RCTtool.treatment") else mod
+
+  # extract treatment
+  dlab <- all.vars(mod)[1]
   dvar <- data[[dlab]]
-  if (!is.factor(dvar)) dvar <- factor(dvar)
-  # treated levels
+
+  # check whether treatment variable is factor
+  if (!is.factor(dvar)) dvar <- factorlize(dvar, ctrl)
+
+  # experimental arms
   arms <- levels(dvar)
-  if (is.null(base)) base <- arms[1]
-  treat <- arms[grep(paste0("[^", base, "]"), arms)]
-  # calculate n0
-  n0 <- length(dvar[dvar == base])
-  # calculate n1
+  if (is.null(ctrl)) ctrl <- arms[1]
+  treat <- arms[grep(paste0("[^", ctrl, "]"), arms)]
+
+  # calculate number of observations
+  n0 <- length(dvar[dvar == ctrl])
   n1 <- lapply(treat, function(x) length(dvar[dvar == x]))
+
   # perform power analysis
   pwr <- lapply(
     n1, ttest_power,
     n0 = n0, d = d, alpha = alpha, power = power
   )
+
   # output dataframe
   out <- dplyr::bind_rows(pwr)
   out$treat <- treat
+
   # calculate unstandarized effect
-  if (unstd_effect) {
-    if (is.null(ylab)) {
-      std_dev <- std_dev
-    } else {
-      v0 <- var(data[data[[dlab]] == base, ][[ylab]], na.rm = TRUE)
-      y1 <- lapply(treat, function(x) data[data[[dlab]] == x, ][[ylab]])
-      v1 <- lapply(y1, var, na.rm = TRUE)
-      std_dev <- sqrt((unlist(v1) + v0) / 2)
-    }
-    out$std_dev <- std_dev
-    out$unstd_effect <- out$d * out$std_dev
+  if (!is.numeric(std_dev)) {
+    ylab <- std_dev
+    v0 <- var(data[data[[dlab]] == ctrl, ][[ylab]], na.rm = TRUE)
+    y1 <- lapply(treat, function(x) data[data[[dlab]] == x, ][[ylab]])
+    v1 <- lapply(y1, var, na.rm = TRUE)
+    std_dev <- sqrt((unlist(v1) + v0) / 2)
   }
+  out$std_dev <- std_dev
+  out$unstd_effect <- out$d * out$std_dev
+
   # add row containg control information
   out <- dplyr::bind_rows(
     out,
-    data.frame(n0 = n0, n1 = n0, treat = base)
+    data.frame(n0 = n0, n1 = n0, treat = ctrl)
   )
   # convert character of treatment to factor
-  out$treat <- factor(
-    out$treat,
-    levels = c(base, treat)
-  )
+  out$treat <- factor(out$treat, levels = c(ctrl, treat))
+
   # output
   class(out) <- append("power_analysis", class(out))
   out

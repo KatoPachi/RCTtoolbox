@@ -7,22 +7,20 @@
 power_analysis(
   mod,
   data,
-  base = NULL,
+  ctrl = NULL,
   d = NULL,
   alpha = NULL,
   power = NULL,
-  unstd_effect = TRUE,
   std_dev = 0.5
 )
 }
 \arguments{
-\item{mod}{formula. You can pass an one-sided formula \code{~ d} or
-two-sided formula \code{y ~ d} where
-\code{y} is outcome and \code{d} is treatments.}
+\item{mod}{formula. Specify one-sided formula \code{~ d}where
+\code{d} is treatments.}
 
 \item{data}{data which you want to use.}
 
-\item{base}{character. Name of the control.
+\item{ctrl}{character. Name of the control.
 If NULL (default), the first level of the variable \code{d} is control.}
 
 \item{d}{numeric. Effect size.}
@@ -31,14 +29,11 @@ If NULL (default), the first level of the variable \code{d} is control.}
 
 \item{power}{numeric. Power.}
 
-\item{unstd_effect}{logical.
-Whether to calculate non-standarized effect.
-Default is TRUE.}
-
 \item{std_dev}{numeric.
-The standard deviation used when calculating the destandardized effect.
-If an outcome variable is specified,
-this argument is ignored and the actual standard deviation is used.
+The standard deviation used when calculating the unstandardized effect.
+If \code{std_dev} is numeric, then specified value is used to calculate.
+If \code{std_dev} is string, calculate standard deviation of specified variable
+and use it to calculate the unstandardized effect.
 Default is 0.5.}
 }
 \value{
@@ -75,7 +70,13 @@ dt <- data.frame(y, d, x1, x2)
 power_analysis(~d, dt, alpha = 0.05, power = 0.8, std_dev = 0.2)
 
 # power analysis with known variance
-power_analysis(y ~ d, dt, alpha = 0.05, power = 0.8)
+power_analysis(~d, dt, alpha = 0.05, power = 0.8, std_dev = "y")
+
+# If you pre-register models through options(),
+# balance test function is simply implemented.
+setRCTtool(RCTtool.treatment = ~ d)
+power_analysis(data = dt, alpha = 0.05, power = 0.8, std_dev = 0.2)
+clearRCTtool()
 
 
 }

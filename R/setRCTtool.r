@@ -25,3 +25,23 @@ setRCTtool <- function(...) {
   # register options if ok
   options(args[ok])
 }
+
+#' Clear global options for RCTtoolbox
+#'
+#' @export
+#'
+clearRCTtool <- function () {
+  # default value of options
+  opt_pkg <- list(
+    RCTtool.outcome = "",
+    RCTtool.treatment = "",
+    RCTtool.xmod = "",
+    RCTtool.plot_family = "",
+    RCTtool.table_fontsize = 15
+  )
+  # check whether options specified in arguments register
+  opt <- names(options())
+  ok <- names(opt_pkg) %in% opt
+  # register options if ok
+  options(opt_pkg[ok])
+}

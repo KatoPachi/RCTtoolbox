@@ -56,5 +56,16 @@ balance_test(~d, c("x1", "x2"), dt)
 # Balance test with only one covariates
 balance_test(x1 ~ d, data = dt)
 
+# If you pre-register models through options(),
+# balance test function is simply implemented.
+setRCTtool(
+  RCTtool.treatment = ~ d,
+  RCTtool.xmod = list(~ x1, ~ x2, ~ x1 + x2)
+)
+
+balance_test(data = dt)
+
+clearRCTtool()
+
 
 }

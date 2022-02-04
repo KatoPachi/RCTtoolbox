@@ -4,12 +4,12 @@
 \alias{factorlize}
 \title{Convert to Factor Variables}
 \usage{
-factorlize(x, base)
+factorlize(x, ctrl)
 }
 \arguments{
 \item{x}{vector}
 
-\item{base}{character. Name of the control.}
+\item{ctrl}{character. Name of the control.}
 }
 \description{
 Convert to Factor Variables
