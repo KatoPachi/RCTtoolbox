@@ -27,7 +27,7 @@ ftest <- function(mod, data) {
   # outcome
   data.frame(
     x = xvar,
-    item = c(arms, "Ftest"),
+    item = c(arms, "P-value (F-test)"),
     val = c(unlist(mu), f)
   )
 }
