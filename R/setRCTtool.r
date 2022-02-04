@@ -35,6 +35,7 @@ clearRCTtool <- function () {
   opt_pkg <- list(
     RCTtool.outcome = "",
     RCTtool.treatment = "",
+    RCTtool.control = "",
     RCTtool.xmod = "",
     RCTtool.plot_family = "",
     RCTtool.table_fontsize = 15

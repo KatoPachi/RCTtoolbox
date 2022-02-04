@@ -48,9 +48,12 @@ ftest <- function(mod, data) {
 #' and the right-hand side of formula is treatment.
 #' When one-sided formula such as `~ d` is passed,
 #' the right-hand side of formula is treatment.
+#' If missing,
+#' try to find out the one-sided formula from `options("RCTtool.treatment")`.
 #' @param x character vector.
 #' When you pass the one-sided formula in `mod` argument,
 #' you must specify covariate labels.
+#' If NULL, try to find out from `options("RCTtool.xmod")`.
 #' @param data data which you want to use.
 #'
 #' @return A data frame (`balance_test`` class) with 3 variables:
@@ -91,34 +94,48 @@ ftest <- function(mod, data) {
 #' )
 #'
 #' balance_test(data = dt)
-#'
 #' clearRCTtool()
 #'
 #'
 balance_test <- function(mod, x = NULL, data) {
   # check options
-  opt_check <- any(
-    getOption("RCTtool.xmod") != "" &
-    getOption("RCTtool.treatment") != ""
-  )
+  opt_treatment <- getOption("RCTtool.treatment") != ""
+  opt_xmod <- any(getOption("RCTtool.xmod") != "")
 
-  if (opt_check) {
-
-    xmod <- getOption("RCTtool.xmod")
-    xmod <- if (!is.list(xmod)) list(xmod) else xmod
-    dmod <- getOption("RCTtool.treatment")
-    x <- lapply(xmod, all.vars)
-    x <- unique(unlist(x))
-    mod <- lapply(x, function(a) as.formula(paste0(a, "~", all.vars(dmod))))
-
-  } else if (length(all.vars(mod)) == 1) {
-
-    if (is.null(x)) stop("Covariates must be specified")
-    mod <- lapply(x, function(a) as.formula(paste0(a, "~", all.vars(mod))))
-
+  # add mod if empty argument and option is registered
+  if (missing(mod)) {
+    if (opt_treatment) {
+      dmod <- getOption("RCTtool.treatment")
+    } else {
+      stop(paste0(
+        "one-sided or two-sided formula must be specified in mod argument.",
+        "Another way is to register options('RCTtool.treatment')."
+      ))
+    }
+  } else {
+    if (length(all.vars(mod)) == 1) {
+      dmod <- mod
+    } else {
+      mod <- if (!is.list(mod)) list(mod) else mod
+      dmod <- NULL
+    }
   }
 
-  mod <- if (!is.list(mod)) list(mod) else mod
+  # If dmod is not NULL, create list of two-sided formulas
+  if (!is.null(dmod)) {
+    if (is.null(x)) {
+      if (opt_xmod) {
+        xmod <- getOption("RCTtool.xmod")
+        x <- lapply(xmod, all.vars)
+        x <- unique(unlist(x))
+        mod <- lapply(x, function(a) as.formula(paste0(a, "~", all.vars(dmod))))
+      } else {
+        stop("Covariate vector must be specified.")
+      }
+    } else {
+      mod <- lapply(x, function(a) as.formula(paste0(a, "~", all.vars(dmod))))
+    }
+  }
 
   # implement F-test
   f <- lapply(mod, ftest, data)

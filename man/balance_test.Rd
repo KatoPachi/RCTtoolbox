@@ -13,11 +13,14 @@ When two-sided formula is passed,
 the left-hand side of formula is covariate,
 and the right-hand side of formula is treatment.
 When one-sided formula such as \code{~ d} is passed,
-the right-hand side of formula is treatment.}
+the right-hand side of formula is treatment.
+If missing,
+try to find out the one-sided formula from \code{options("RCTtool.treatment")}.}
 
 \item{x}{character vector.
 When you pass the one-sided formula in \code{mod} argument,
-you must specify covariate labels.}
+you must specify covariate labels.
+If NULL, try to find out from \code{options("RCTtool.xmod")}.}
 
 \item{data}{data which you want to use.}
 }
@@ -64,7 +67,6 @@ setRCTtool(
 )
 
 balance_test(data = dt)
-
 clearRCTtool()
 
 

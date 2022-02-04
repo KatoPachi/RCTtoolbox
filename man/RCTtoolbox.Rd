@@ -19,6 +19,7 @@ such as \code{c("y1", "y2")}
 \item \code{RCTtool.treatment}: One-sided formula with
 treatment variables on the right-hand side of the formula
 (e.g. \code{~ treatment}).
+\item \code{RCTtool.control}: String of control arm.
 \item \code{RCTtool.xmod}: A list of one-sided formulas with covariates
 on the right-hand side of the equation.
 See \code{\link[=rct_lm]{rct_lm()}} in detail.

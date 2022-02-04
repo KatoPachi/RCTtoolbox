@@ -10,6 +10,7 @@
 #'   \item `RCTtool.treatment`: One-sided formula with
 #'     treatment variables on the right-hand side of the formula
 #'     (e.g. `~ treatment`).
+#'   \item `RCTtool.control`: String of control arm.
 #'   \item `RCTtool.xmod`: A list of one-sided formulas with covariates
 #'     on the right-hand side of the equation.
 #'     See [rct_lm()] in detail.
@@ -28,6 +29,7 @@
   opt_pkg <- list(
     RCTtool.outcome = "",
     RCTtool.treatment = "",
+    RCTtool.control = "",
     RCTtool.xmod = "",
     RCTtool.plot_family = "",
     RCTtool.table_fontsize = 15

@@ -15,13 +15,15 @@ power_analysis(
 )
 }
 \arguments{
-\item{mod}{formula. Specify one-sided formula \code{~ d}where
-\code{d} is treatments.}
+\item{mod}{formula. Specify one-sided formula \code{~ d} where
+\code{d} is treatments.
+If missing, find formula from \code{options("RCTtool.treatment")}.}
 
 \item{data}{data which you want to use.}
 
 \item{ctrl}{character. Name of the control.
-If NULL (default), the first level of the variable \code{d} is control.}
+If NULL (default), (1) find out from \code{options("RCTtool.control")},
+and then (2) the first level of the variable \code{d} is control.}
 
 \item{d}{numeric. Effect size.}
 
@@ -70,11 +72,11 @@ dt <- data.frame(y, d, x1, x2)
 power_analysis(~d, dt, alpha = 0.05, power = 0.8, std_dev = 0.2)
 
 # power analysis with known variance
-power_analysis(~d, dt, alpha = 0.05, power = 0.8, std_dev = "y")
+power_analysis(~d, dt, ctrl = "A", alpha = 0.05, power = 0.8, std_dev = "y")
 
 # If you pre-register models through options(),
 # balance test function is simply implemented.
-setRCTtool(RCTtool.treatment = ~ d)
+setRCTtool(RCTtool.treatment = ~ d, RCTtool.control = "B")
 power_analysis(data = dt, alpha = 0.05, power = 0.8, std_dev = 0.2)
 clearRCTtool()
 

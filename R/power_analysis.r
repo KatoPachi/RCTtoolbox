@@ -98,11 +98,13 @@ ttest_power <- function(
 #' If no outcome variable is specified,
 #' the standard deviation specified by the std_dev argument is used.
 #'
-#' @param mod formula. Specify one-sided formula `~ d`where
+#' @param mod formula. Specify one-sided formula `~ d` where
 #' `d` is treatments.
+#' If missing, find formula from `options("RCTtool.treatment")`.
 #' @param data data which you want to use.
 #' @param ctrl character. Name of the control.
-#' If NULL (default), the first level of the variable `d` is control.
+#' If NULL (default), (1) find out from `options("RCTtool.control")`,
+#' and then (2) the first level of the variable `d` is control.
 #' @param d numeric. Effect size.
 #' @param alpha numeric. Significant level.
 #' @param power numeric. Power.
@@ -134,11 +136,11 @@ ttest_power <- function(
 #' power_analysis(~d, dt, alpha = 0.05, power = 0.8, std_dev = 0.2)
 #'
 #' # power analysis with known variance
-#' power_analysis(~d, dt, alpha = 0.05, power = 0.8, std_dev = "y")
+#' power_analysis(~d, dt, ctrl = "A", alpha = 0.05, power = 0.8, std_dev = "y")
 #'
 #' # If you pre-register models through options(),
 #' # balance test function is simply implemented.
-#' setRCTtool(RCTtool.treatment = ~ d)
+#' setRCTtool(RCTtool.treatment = ~ d, RCTtool.control = "B")
 #' power_analysis(data = dt, alpha = 0.05, power = 0.8, std_dev = 0.2)
 #' clearRCTtool()
 #'
@@ -149,10 +151,20 @@ power_analysis <- function(
   std_dev = 0.5
 ) {
   # option check
-  opt_check <- getOption("RCTtool.treatment") != ""
+  opt_treatment <- getOption("RCTtool.treatment") != ""
+  opt_control <- getOption("RCTtool.control") != ""
 
-  # use model
-  mod <- if (opt_check) getOption("RCTtool.treatment") else mod
+  # setup model if missing(mod)
+  if (missing(mod)) {
+    if (opt_treatment) {
+      mod <- getOption("RCTtool.treatment")
+    } else {
+      stop(paste0(
+        "One-sided formula must be specified in the mod argument.",
+        "Alternatively, register option('RCTtool.treatment')."
+      ))
+    }
+  }
 
   # extract treatment
   dlab <- all.vars(mod)[1]
@@ -163,7 +175,9 @@ power_analysis <- function(
 
   # experimental arms
   arms <- levels(dvar)
-  if (is.null(ctrl)) ctrl <- arms[1]
+  if (is.null(ctrl)) {
+    ctrl <- ifelse(opt_control, getOption("RCTtool.control"), arms[1])
+  }
   treat <- arms[grep(paste0("[^", ctrl, "]"), arms)]
 
   # calculate number of observations
