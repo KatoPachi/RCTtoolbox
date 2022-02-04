@@ -265,3 +265,112 @@ rct_table.balance_test <- function(
   }
 
 }
+
+#' Output Table for Regression Analaysis
+#'
+#' @method rct_table RCT_OLS
+#' @export
+#'
+#' 
+rct_table.RCT_OLS <- function(
+  object,
+  coefmap, noshow_x,
+  gofkeep = "Num.Obs.|R2|R2 Adj.",
+  digits = 3,
+  title = NULL, footnote = NULL,
+  output = "kableExtra", size = 15,
+  ...
+) {
+  # header
+  yvec <- unlist(lapply(object$model, function(x) all.vars(x)[1]))
+  ylab <- c(1, rle(yvec)$length)
+  names(ylab) <- c(" ", rle(yvec)$values)
+  ### Outcome labels
+
+  # add_rows for non-shown covariates
+  xvec <- lapply(object$model, function(x) all.vars(x)[- (1:2)])
+  tab <- data.frame(x = unique(unlist(xvec)))
+
+  for (i in seq_len(length(xvec))) {
+    tab[, i + 1] <- apply(
+      as.matrix(tab[, 1], ncol = 1),
+      MARGIN = 1, function(x) sum(xvec[[i]] == x)
+    )
+  }
+
+  res <- NULL
+  for (i in seq_len(length(noshow_x))) {
+    ctrl <- apply(subset(tab, x %in% noshow_x[[i]])[, -1], MARGIN = 2, sum)
+    show <- sum(noshow_x[[i]] %in% names(coefmap))
+    res[[i]] <- 1 * (show == 0)
+    res[[i]] <- res[[i]] * 1 * (
+      sum(ctrl == 0 | ctrl == length(noshow_x[[i]])) == length(ctrl)
+    )
+  }
+
+  newtab <- NULL
+  for (i in seq_len(length(res))) {
+    if (res[[i]] == 1) {
+      bool <- apply(
+        subset(tab, x %in% noshow_x[[i]])[, -1],
+        2, function(x) 1 * (sum(x) > 0)
+      )
+      newtab[[i]] <- data.frame(
+        x = names(noshow_x)[i],
+        t(bool)
+      )
+    } else {
+      newtab[[i]] <- subset(tab, x %in% noshow_x[[i]])
+    }
+  }
+  newtab <- dplyr::bind_rows(newtab)
+
+  #### Error
+  for (i in seq_len(ncol(newtab) - 1)) {
+    newtab[, 1 + i] <- if (newtab[, 1 + i] == 0) {
+      " "
+    } else {
+      "X"
+    }
+  }
+  ####
+
+  # model names
+  names(object$res) <- paste0("(", seq_len(length(object$res)), ")")
+
+  # basic output
+  tab <- modelsummary::modelsummary(
+    object$res,
+    coef_map = coefmap,
+    gof_omit = paste0("[^", gofkeep, "]"),
+    add_rows = newtab,
+    title = title
+  )
+  # additional options for kabelExtra and flextable
+  if (output == "kableExtra") {
+    tab %>%
+      kableExtra::kable_styling(font_size = size, ...) %>%
+      kableExtra::add_header_above(ylab) %>%
+      kableExtra::footnote(
+        general_title = "",
+        general = footnote,
+        threeparttable = TRUE,
+        escape = FALSE
+      )
+  } else if (output == "flextable") {
+    tab %>%
+      flextable::add_footer_lines(values = footnote) %>%
+      flextable::add_header_row(values = names(ylab), colwidths = ylab) %>%
+      flextable::fontsize(size = size, part = "all")
+  } else {
+    tab
+  }
+}
+
+
+# est <- rct_lm(y ~ d, xmod = ~ x1 + x2, data = dt)
+# rct_table(
+#   est,
+#   coefmap = c("dB" = "State B", "dC" = "State C"),
+#   noshow_x = list("x1" = "x1", "x2" = "x2")
+# )

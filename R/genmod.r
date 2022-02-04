@@ -21,8 +21,8 @@
 #'
 genmod <- function(basemod, xmod = NULL, include_onlyd = TRUE) {
   # check list
-  basemod <- if(!is.list(basemod)) list(basemod)
-  xmod <- if(!is.null(xmod) & !is.list(xmod)) list(xmod)
+  basemod <- if (!is.list(basemod)) list(basemod) else basemod
+  xmod <- if (!is.null(xmod) & !is.list(xmod)) list(xmod) else xmod
   # length of lists
   num_base <- length(basemod)
   num_xmod <- length(xmod)
