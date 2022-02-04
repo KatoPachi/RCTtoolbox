@@ -6,36 +6,41 @@
 \usage{
 \method{rct_table}{power_analysis}(
   data,
-  target = "unstd_d",
-  digits = 3,
+  tar = "unstd_effect",
+  dlab = "Treatments",
+  tardigits = 3,
+  tarlab = "Mean Difference",
   title = NULL,
-  output = "kableExtra",
   footnote = NULL,
   size = 15,
+  output = "kableExtra",
   ...
 )
 }
 \arguments{
 \item{data}{dataframe with class "power_analysis"}
 
-\item{target}{character. Specify which value to output.
+\item{tar}{character. Specify which value to output.
 If "d", the effect size is output.
-If "unstd_d", the non-standarized effect size
+If "unstd_effect" (default), the non-standarized effect size
 (i.e., absolute value of mean difference) is output.
 If "alpha", the significant level is output.
 If "power", the power is output.}
 
-\item{digits}{numeric.
+\item{dlab}{character. Label of treatment column.}
+
+\item{tardigits}{numeric.
 Specify the number of decimal places to display (Default is 3).}
+
+\item{tarlab}{character. Label of output \code{tar} column.}
 
 \item{title}{character. Table title.}
 
-\item{output}{character. Output format. This functions supports
-"kableExtra" (default), "flextable", and "data.frame"}
+\item{footnote}{character. Footnote (kableExtra or flextable).}
 
-\item{footnote}{character. Footnote.}
+\item{size}{numeric. Font size (kableExtra or flextable).}
 
-\item{size}{numeric. Font size.}
+\item{output}{character. Output format.}
 
 \item{\dots}{Other arguments to pass to \code{kableExtra::kable_styling}}
 }

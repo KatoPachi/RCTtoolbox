@@ -22,8 +22,7 @@ Specify the number of decimal places to display (Default is 3).}
 
 \item{title}{character. Table title.}
 
-\item{output}{character. Output format. This functions supports
-"kableExtra" (default), "flextable", and "data.frame"}
+\item{output}{character. Output format.}
 
 \item{footnote}{character. Footnote.}
 

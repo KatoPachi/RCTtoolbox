@@ -67,19 +67,20 @@ rct_table <- function(...) {
 #' "flextable" (MS Word and MS Powerpoint), and "data.frame".
 #'
 #' @param data dataframe with class "power_analysis"
-#' @param target character. Specify which value to output.
+#' @param tar character. Specify which value to output.
 #' If "d", the effect size is output.
-#' If "unstd_d", the non-standarized effect size
+#' If "unstd_effect" (default), the non-standarized effect size
 #' (i.e., absolute value of mean difference) is output.
 #' If "alpha", the significant level is output.
 #' If "power", the power is output.
-#' @param digits numeric. 
+#' @param dlab character. Label of treatment column.
+#' @param tardigits numeric.
 #' Specify the number of decimal places to display (Default is 3).
+#' @param tarlab character. Label of output `tar` column.
 #' @param title character. Table title.
-#' @param output character. Output format. This functions supports
-#' "kableExtra" (default), "flextable", and "data.frame"
-#' @param footnote character. Footnote.
-#' @param size numeric. Font size.
+#' @param footnote character. Footnote (kableExtra or flextable).
+#' @param size numeric. Font size (kableExtra or flextable).
+#' @param output character. Output format.
 #' @param \dots Other arguments to pass to `kableExtra::kable_styling`
 #'
 #' @method rct_table power_analysis
@@ -89,6 +90,8 @@ rct_table <- function(...) {
 #' @importFrom kableExtra footnote
 #' @importFrom flextable add_footer_lines
 #' @importFrom flextable fontsize
+#' @importFrom tables Heading
+#' @importFrom tables Format
 #' @export
 #'
 #' @examples
@@ -122,57 +125,31 @@ rct_table <- function(...) {
 #' )
 #'
 rct_table.power_analysis <- function(
-  data, target = "unstd_d", digits = 3,
-  title = NULL, output = "kableExtra",
-  footnote = NULL, size = 15,
+  data, tar = "unstd_effect",
+  dlab = "Treatments", tardigits = 3, tarlab = "Mean Difference",
+  title = NULL, footnote = NULL,
+  size = 15, output = "kableExtra",
   ...
 ) {
-  data0 <- data[data$treat == levels(data$treat)[1], ]
-  data0$treat <- droplevels(data0$treat)
+  # shape passed data
+  usedt <- data[, c("treat", "n1", tar)]
+  colnames(usedt) <- c("d", "n", "tar")
 
-  nprint <- function(x) sprintf("%1d", x)
-  addrow <- modelsummary::datasummary(
-    treat ~ (` ` = n1) * nprint + (` ` = d) * nprint,
-    data = data0,
-    output = "data.frame"
-  )
-  attr(addrow, "position") <- 1
-
-  model <- switch(target,
-    "d" = quote(
-      (`Treatments` = treat) ~ (` ` = nprint) * (`N` = n1) +
-        (` ` = tarprint) * (`ES` = d) * Arguments(digits = digits)
-    ),
-    "unstd_d" = quote(
-      (`Treatments` = treat) ~ (` ` = nprint) * (`N` = n1) +
-        (` ` = tarprint) * (`Mean difference` = unstd_effect) *
-        Arguments(digits = digits)
-    ),
-    "alpha" = quote(
-      (`Treatments` = treat) ~ (` ` = nprint) * (`N` = n1) +
-        (` ` = tarprint) * (`Signigicance level` = alpha) *
-        Arguments(digits = digits)
-    ),
-    "power" = quote(
-      (`Treatments` = treat) ~ (` ` = nprint) * (`N` = n1) +
-        (` ` = tarprint) * (`Power` = power) *
-        Arguments(digits = digits)
-    )
-  )
-
-  data1 <- data[data$treat != levels(data$treat)[1], ]
-  data1$treat <- droplevels(data1$treat)
-
-  tarprint <- function(x, digits = 3) sprintf(paste0("%1.", digits, "f"), x)
+  # basic datasummary
+  rawvalue <- function(x) x
   tab <- modelsummary::datasummary(
-    eval(model),
-    data = data1,
-    add_rows = addrow,
+    Heading(dlab, character.only = TRUE) * d ~ (` ` = rawvalue) * (
+      Heading("N") * n * Format(digits = 0) +
+      Heading(tarlab, character.only = TRUE) * tar *
+      Format(digits = tardigits)
+    ),
+    data = usedt,
     title = title,
     output = output,
     align = "lcc"
   )
 
+  # footnote and font size for kableExtra or flextable
   if (output == "kableExtra") {
     tab %>%
       kableExtra::kable_styling(font_size = size, ...) %>%
@@ -186,13 +163,8 @@ rct_table.power_analysis <- function(
     tab %>%
       flextable::add_footer_lines(values = footnote) %>%
       flextable::fontsize(size = size, part = "all")
-  } else if (output == "data.frame") {
-    tab
   } else {
-    stop(paste0(
-      "You can pass 'kableExtra', 'flextable', and 'data.frame'",
-      "in the output argument."
-    ))
+    tab
   }
 
 }
@@ -211,8 +183,7 @@ rct_table.power_analysis <- function(
 #' @param digits numeric.
 #' Specify the number of decimal places to display (Default is 3).
 #' @param title character. Table title.
-#' @param output character. Output format. This functions supports
-#' "kableExtra" (default), "flextable", and "data.frame"
+#' @param output character. Output format.
 #' @param footnote character. Footnote.
 #' @param size numeric. Font size.
 #' @param \dots Other arguments to pass to `kableExtra::kable_styling`
@@ -289,13 +260,8 @@ rct_table.balance_test <- function(
         colwidths = c(1, numarms, 1)
       ) %>%
       flextable::fontsize(size = size, part = "all")
-  } else if (output == "data.frame") {
-    tab
   } else {
-    stop(paste0(
-      "You can pass 'kableExtra', 'flextable', and 'data.frame'",
-      "in the output argument."
-    ))
+    tab
   }
 
 }
