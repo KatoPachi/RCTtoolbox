@@ -83,16 +83,46 @@ ftest <- function(mod, data) {
 #' # Balance test with only one covariates
 #' balance_test(x1 ~ d, data = dt)
 #'
+#' # If you pre-register models through options(),
+#' # balance test function is simply implemented.
+#' setRCTtool(
+#'   RCTtool.treatment = ~ d,
+#'   RCTtool.xmod = list(~ x1, ~ x2, ~ x1 + x2)
+#' )
+#'
+#' balance_test(data = dt)
+#'
 #'
 balance_test <- function(mod, x = NULL, data) {
-  if (length(all.vars(mod)) > 1) {
-    f <- ftest(mod, data)
-  } else {
+  # check options
+  opt_check <- any(
+    getOption("RCTtool.xmod") != "" &
+    getOption("RCTtool.treatment") != ""
+  )
+
+  if (opt_check) {
+
+    xmod <- getOption("RCTtool.xmod")
+    xmod <- if (!is.list(xmod)) list(xmod) else xmod
+    dmod <- getOption("RCTtool.treatment")
+    x <- lapply(xmod, all.vars)
+    x <- unique(unlist(x))
+    mod <- lapply(x, function(a) as.formula(paste0(a, "~", all.vars(dmod))))
+
+  } else if (length(all.vars(mod)) == 1) {
+
     if (is.null(x)) stop("Covariates must be specified")
     mod <- lapply(x, function(a) as.formula(paste0(a, "~", all.vars(mod))))
-    f <- lapply(mod, ftest, data)
-    f <- dplyr::bind_rows(f)
+
   }
+
+  if (!is.list(mod)) list(mod) else mod
+
+  # implement F-test
+  f <- lapply(mod, ftest, data)
+  f <- dplyr::bind_rows(f)
+
+  # output
   class(f) <- append(class(f), "balance_test")
   f
 }
