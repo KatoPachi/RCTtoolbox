@@ -34,6 +34,9 @@ dt <- data.frame(y, d, x1, x2)
 
 # power analysis with variance assumption
 tmp <- power_analysis(~d, dt, alpha = 0.05, power = 0.8, std_dev = 0.2)
+
+# table output of power analysis
+library(modelsummary)
 rct_table(
   tmp,
   title = paste(

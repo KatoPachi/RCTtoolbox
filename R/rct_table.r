@@ -28,6 +28,9 @@
 #'
 #' # power analysis with variance assumption
 #' tmp <- power_analysis(~d, dt, alpha = 0.05, power = 0.8, std_dev = 0.2)
+#'
+#' # table output of power analysis
+#' library(modelsummary)
 #' rct_table(
 #'   tmp,
 #'   title = paste(
@@ -69,6 +72,7 @@ rct_table <- function(...) {
 #' "kableExtra", "flextable", and "data.frame"
 #' @param footnote character. Footnote.
 #' @param size numeric. Font size.
+#' @param \dots Other arguments to pass to `kableExtra::kable_styling`
 #'
 #' @method rct_table power_analysis
 #' @importFrom modelsummary datasummary
@@ -94,6 +98,9 @@ rct_table <- function(...) {
 #'
 #' # power analysis with variance assumption
 #' tmp <- power_analysis(~d, dt, alpha = 0.05, power = 0.8, std_dev = 0.2)
+#'
+#' # table output of power analysis
+#' library(modelsummary)
 #' rct_table(
 #'   tmp,
 #'   title = paste(
