@@ -15,15 +15,15 @@ power_analysis(
 )
 }
 \arguments{
-\item{mod}{formula. Specify one-sided formula \code{~ d} where
-\code{d} is treatments.
+\item{mod}{formula. Specify one-sided formula \code{~ treatment}.
 If missing, find formula from \code{options("RCTtool.treatment")}.}
 
 \item{data}{data which you want to use.}
 
 \item{ctrl}{character. Name of the control.
-If NULL (default), (1) find out from \code{options("RCTtool.control")},
-and then (2) the first level of the variable \code{d} is control.}
+If NULL (default), first try to find out from \code{options("RCTtool.control")}.
+If cannot find global options,
+the first level of the variable \code{d} is control.}
 
 \item{d}{numeric. Effect size.}
 
@@ -39,7 +39,7 @@ and use it to calculate the unstandardized effect.
 Default is 0.5.}
 }
 \value{
-tibble (and data.frame) with class "power.analysis"
+tibble (and data.frame) with class "power_analysis"
 }
 \description{
 This function performs a two-sided t-test power analysis
@@ -56,7 +56,6 @@ If no outcome variable is specified,
 the standard deviation specified by the std_dev argument is used.
 }
 \examples{
-\dontrun{
 # DGP
 set.seed(120511)
 n <- 1000
@@ -69,17 +68,20 @@ yc <- -1 - 0.2 * x1 + 0.5 * x2
 y <- ifelse(d == "A", ya, ifelse(d == "B", yb, yc))
 dt <- data.frame(y, d, x1, x2)
 
-# power analysis with variance assumption
-power_analysis(~d, dt, alpha = 0.05, power = 0.8, std_dev = 0.2)
+# power analysis with full argument
+power_analysis(
+  ~d, dt, ctrl = "B", alpha = 0.05, power = 0.8, std_dev = "y"
+) #known variance
 
-# power analysis with known variance
-power_analysis(~d, dt, ctrl = "A", alpha = 0.05, power = 0.8, std_dev = "y")
+power_analysis(
+  ~d, dt, ctrl = "B", alpha = 0.05, power = 0.8, std_dev = 1
+) #known variance
 
-# If you pre-register models through options(),
-# balance test function is simply implemented.
-setRCTtool(RCTtool.treatment = ~ d, RCTtool.control = "B")
-power_analysis(data = dt, alpha = 0.05, power = 0.8, std_dev = 0.2)
-clearRCTtool()
-}
+# Use global options
+optRCTtool(RCTtool.arms = ~ d, RCTtool.control = "A")
+power_analysis(data = dt, alpha = 0.05, power = 0.8, std_dev = 1)
+power_analysis(data = dt, ctrl = "B", alpha = 0.05, power = 0.8, std_dev = 1)
+optRCTtool(clear = TRUE)
+
 
 }

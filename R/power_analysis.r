@@ -98,13 +98,13 @@ ttest_power <- function(
 #' If no outcome variable is specified,
 #' the standard deviation specified by the std_dev argument is used.
 #'
-#' @param mod formula. Specify one-sided formula `~ d` where
-#' `d` is treatments.
+#' @param mod formula. Specify one-sided formula `~ treatment`.
 #' If missing, find formula from `options("RCTtool.treatment")`.
 #' @param data data which you want to use.
 #' @param ctrl character. Name of the control.
-#' If NULL (default), (1) find out from `options("RCTtool.control")`,
-#' and then (2) the first level of the variable `d` is control.
+#' If NULL (default), first try to find out from `options("RCTtool.control")`.
+#' If cannot find global options,
+#' the first level of the variable `d` is control.
 #' @param d numeric. Effect size.
 #' @param alpha numeric. Significant level.
 #' @param power numeric. Power.
@@ -115,12 +115,11 @@ ttest_power <- function(
 #' and use it to calculate the unstandardized effect.
 #' Default is 0.5.
 #'
-#' @return tibble (and data.frame) with class "power.analysis"
+#' @return tibble (and data.frame) with class "power_analysis"
 #'
 #' @importFrom dplyr bind_rows
 #' @export
 #' @examples
-#' \dontrun{
 #' # DGP
 #' set.seed(120511)
 #' n <- 1000
@@ -133,57 +132,71 @@ ttest_power <- function(
 #' y <- ifelse(d == "A", ya, ifelse(d == "B", yb, yc))
 #' dt <- data.frame(y, d, x1, x2)
 #'
-#' # power analysis with variance assumption
-#' power_analysis(~d, dt, alpha = 0.05, power = 0.8, std_dev = 0.2)
+#' # power analysis with full argument
+#' power_analysis(
+#'   ~d, dt, ctrl = "B", alpha = 0.05, power = 0.8, std_dev = "y"
+#' ) #known variance
 #'
-#' # power analysis with known variance
-#' power_analysis(~d, dt, ctrl = "A", alpha = 0.05, power = 0.8, std_dev = "y")
+#' power_analysis(
+#'   ~d, dt, ctrl = "B", alpha = 0.05, power = 0.8, std_dev = 1
+#' ) #known variance
 #'
-#' # If you pre-register models through options(),
-#' # balance test function is simply implemented.
-#' setRCTtool(RCTtool.treatment = ~ d, RCTtool.control = "B")
-#' power_analysis(data = dt, alpha = 0.05, power = 0.8, std_dev = 0.2)
-#' clearRCTtool()
-#' }
+#' # Use global options
+#' optRCTtool(RCTtool.arms = ~ d, RCTtool.control = "A")
+#' power_analysis(data = dt, alpha = 0.05, power = 0.8, std_dev = 1)
+#' power_analysis(data = dt, ctrl = "B", alpha = 0.05, power = 0.8, std_dev = 1)
+#' optRCTtool(clear = TRUE)
+#'
 #'
 power_analysis <- function(
   mod, data, ctrl = NULL,
   d = NULL, alpha = NULL, power = NULL,
   std_dev = 0.5
 ) {
-  # option check
-  opt_treatment <- getOption("RCTtool.treatment") != ""
-  opt_control <- getOption("RCTtool.control") != ""
-
-  # setup model if missing(mod)
+  # if mod is missing, search global options
   if (missing(mod)) {
-    if (opt_treatment) {
-      mod <- getOption("RCTtool.treatment")
+    opt_set_arms <- getOption("RCTtool.arms") != ""
+    if (opt_set_arms) {
+      dlab <- all.vars(getOption("RCTtool.arms"))
     } else {
       stop(paste0(
-        "One-sided formula must be specified in the mod argument.",
-        "Alternatively, register option('RCTtool.treatment')."
+        "Due to missing mod,",
+        "try to search options('RCTtool.arms'), but not register.",
+        "Specify models in the mod argument or register global options."
       ))
     }
+  } else {
+    parts <- parse_model(mod)
+
+    # check rhs
+    if (length(parts$rhs) > 1) {
+      stop("Only one treatment variable in the rhs")
+    } else if (length(parts$rhs) == 0) {
+      opt_set_arms <- getOption("RCTtool.arms") != ""
+      if (opt_set_arms) {
+        parts$rhs <- all.vars(getOption("RCTtool.arms"))
+      } else {
+        stop("Cannot find treatment arms in both mod and options.")
+      }
+    }
+
+    # if length(lhs) > 0, warning
+    if (length(parts$lhs) > 0) {
+      warning(paste0("Ignore LHS"))
+    }
+
+    dlab <- parts$rhs
   }
 
-  # extract treatment
-  dlab <- all.vars(mod)[1]
-  dvar <- data[[dlab]]
+  # extract treatment vector
+  dv <- data[[dlab]]
 
-  # check whether treatment variable is factor
-  if (!is.factor(dvar)) dvar <- factorlize(dvar, ctrl)
-
-  # experimental arms
-  arms <- levels(dvar)
-  if (is.null(ctrl)) {
-    ctrl <- ifelse(opt_control, getOption("RCTtool.control"), arms[1])
-  }
-  treat <- arms[grep(paste0("[^", ctrl, "]"), arms)]
+  # experimental information
+  exparm <- expinfo(dv, ctrl)
 
   # calculate number of observations
-  n0 <- length(dvar[dvar == ctrl])
-  n1 <- lapply(treat, function(x) length(dvar[dvar == x]))
+  n0 <- length(dv[dv == exparm$ctrl])
+  n1 <- lapply(exparm$treat, function(x) length(dv[dv == x]))
 
   # perform power analysis
   pwr <- lapply(
@@ -193,26 +206,26 @@ power_analysis <- function(
 
   # output dataframe
   out <- dplyr::bind_rows(pwr)
-  out$treat <- treat
+  out$treat <- exparm$treat
 
   # calculate unstandarized effect
   if (!is.numeric(std_dev)) {
     ylab <- std_dev
-    v0 <- var(data[data[[dlab]] == ctrl, ][[ylab]], na.rm = TRUE)
-    y1 <- lapply(treat, function(x) data[data[[dlab]] == x, ][[ylab]])
+    v0 <- var(data[data[[dlab]] == exparm$ctrl, ][[ylab]], na.rm = TRUE)
+    y1 <- lapply(exparm$treat, function(x) data[data[[dlab]] == x, ][[ylab]])
     v1 <- lapply(y1, var, na.rm = TRUE)
     std_dev <- sqrt((unlist(v1) + v0) / 2)
   }
   out$std_dev <- std_dev
   out$unstd_effect <- out$d * out$std_dev
 
-  # add row containg control information
+  # add row containing control information
   out <- dplyr::bind_rows(
     out,
-    data.frame(n0 = n0, n1 = n0, treat = ctrl)
+    data.frame(n0 = n0, n1 = n0, treat = exparm$ctrl)
   )
   # convert character of treatment to factor
-  out$treat <- factor(out$treat, levels = c(ctrl, treat))
+  out$treat <- factor(out$treat, levels = exparm$level)
 
   # output
   class(out) <- append("power_analysis", class(out))
