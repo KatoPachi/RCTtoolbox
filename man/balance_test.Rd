@@ -4,23 +4,17 @@
 \alias{balance_test}
 \title{Blance Test by F-test of Overall Siginificance in Linear Regression}
 \usage{
-balance_test(mod, x = NULL, data)
+balance_test(mod, data)
 }
 \arguments{
-\item{mod}{formula.
-You can pass two-sided or one-sided formula.
-When two-sided formula is passed,
-the left-hand side of formula is covariate,
-and the right-hand side of formula is treatment.
-When one-sided formula such as \code{~ d} is passed,
-the right-hand side of formula is treatment.
-If missing,
-try to find out the one-sided formula from \code{options("RCTtool.treatment")}.}
-
-\item{x}{character vector.
-When you pass the one-sided formula in \code{mod} argument,
-you must specify covariate labels.
-If NULL, try to find out from \code{options("RCTtool.xmod")}.}
+\item{mod}{formula such as \code{covariate1 + covariate2 ~ treatment}.
+If missing, try to find out experimental arms and covariates
+from global options "RCTtool.arms" and "RCTtool.xmod"
+If formula with rhs only,
+try to find out covariates from global options "RCTtool.xmod".
+If formula with lhs only,
+try to find out experimental arms
+from global options "RCTtool.arms"}
 
 \item{data}{data which you want to use.}
 }
@@ -53,21 +47,18 @@ yc <- -1 - 0.2 * x1 + 0.5 * x2
 y <- ifelse(d == "A", ya, ifelse(d == "B", yb, yc))
 dt <- data.frame(y, d, x1, x2)
 
-# Balance test with two or more covariates
-balance_test(~d, c("x1", "x2"), dt)
-
-# Balance test with only one covariates
+# use mod argument
 balance_test(x1 ~ d, data = dt)
+balance_test(x1 + x2 ~ d, data = dt)
 
-# If you pre-register models through options(),
-# balance test function is simply implemented.
-setRCTtool(
-  RCTtool.treatment = ~ d,
-  RCTtool.xmod = list(~ x1, ~ x2, ~ x1 + x2)
+# use global options
+optRCTtool(
+  RCTtool.arms = ~d,
+  RCTtool.xmod = list(~x1, ~x2, ~ x1 + x2)
 )
-
 balance_test(data = dt)
-clearRCTtool()
+balance_test(x1 ~ 0, data = dt)
+optRCTtool(clear = TRUE)
 
 
 }

@@ -5,9 +5,10 @@
 #' RCTtoolbox provides the following [options()]
 #' to facilitate consistent analysis:
 #' \itemize{
-#'   \item `RCTtool.outcome`: String vector with outcome variables
-#'     such as `c("y1", "y2")`
-#'   \item `RCTtool.treatment`: One-sided formula with
+#'   \item `RCTtool.outcome`: One-sided formula with
+#'     outcome variables on the left-hand side of the formula
+#'     (e.g. `y1 + y2 ~ 0`)
+#'   \item `RCTtool.arms`: One-sided formula with
 #'     treatment variables on the right-hand side of the formula
 #'     (e.g. `~ treatment`).
 #'   \item `RCTtool.control`: String of control arm.
@@ -28,7 +29,7 @@
   opt <- options()
   opt_pkg <- list(
     RCTtool.outcome = "",
-    RCTtool.treatment = "",
+    RCTtool.arms = "",
     RCTtool.control = "",
     RCTtool.xmod = "",
     RCTtool.plot_family = "",

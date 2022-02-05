@@ -14,9 +14,10 @@ What the package does (one paragraph).
 RCTtoolbox provides the following \code{\link[=options]{options()}}
 to facilitate consistent analysis:
 \itemize{
-\item \code{RCTtool.outcome}: String vector with outcome variables
-such as \code{c("y1", "y2")}
-\item \code{RCTtool.treatment}: One-sided formula with
+\item \code{RCTtool.outcome}: One-sided formula with
+outcome variables on the left-hand side of the formula
+(e.g. \code{y1 + y2 ~ 0})
+\item \code{RCTtool.arms}: One-sided formula with
 treatment variables on the right-hand side of the formula
 (e.g. \code{~ treatment}).
 \item \code{RCTtool.control}: String of control arm.

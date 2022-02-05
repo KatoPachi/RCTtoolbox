@@ -52,7 +52,7 @@ y <- ifelse(d == "A", ya, ifelse(d == "B", yb, yc))
 dt <- data.frame(y, d, x1, x2)
 
 # Balance test with two or more covariates
-btest <- balance_test(~d, c("x1", "x2"), dt)
+btest <- balance_test(x1 + x2 ~ d, dt)
 
 # Output table
 library(modelsummary)

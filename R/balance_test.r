@@ -41,19 +41,14 @@ ftest <- function(mod, data) {
 #' User specifies the treatment variable with a one-sided formula
 #' and the covariate used for the balance test with a string vector.
 #'
-#' @param mod formula.
-#' You can pass two-sided or one-sided formula.
-#' When two-sided formula is passed,
-#' the left-hand side of formula is covariate,
-#' and the right-hand side of formula is treatment.
-#' When one-sided formula such as `~ d` is passed,
-#' the right-hand side of formula is treatment.
-#' If missing,
-#' try to find out the one-sided formula from `options("RCTtool.treatment")`.
-#' @param x character vector.
-#' When you pass the one-sided formula in `mod` argument,
-#' you must specify covariate labels.
-#' If NULL, try to find out from `options("RCTtool.xmod")`.
+#' @param mod formula such as `covariate1 + covariate2 ~ treatment`.
+#' If missing, try to find out experimental arms and covariates
+#' from global options "RCTtool.arms" and "RCTtool.xmod"
+#' If formula with rhs only,
+#' try to find out covariates from global options "RCTtool.xmod".
+#' If formula with lhs only,
+#' try to find out experimental arms
+#' from global options "RCTtool.arms"
 #' @param data data which you want to use.
 #'
 #' @return A data frame (`balance_test`` class) with 3 variables:
@@ -80,64 +75,75 @@ ftest <- function(mod, data) {
 #' y <- ifelse(d == "A", ya, ifelse(d == "B", yb, yc))
 #' dt <- data.frame(y, d, x1, x2)
 #'
-#' # Balance test with two or more covariates
-#' balance_test(~d, c("x1", "x2"), dt)
-#'
-#' # Balance test with only one covariates
+#' # use mod argument
 #' balance_test(x1 ~ d, data = dt)
+#' balance_test(x1 + x2 ~ d, data = dt)
 #'
-#' # If you pre-register models through options(),
-#' # balance test function is simply implemented.
-#' setRCTtool(
-#'   RCTtool.treatment = ~ d,
-#'   RCTtool.xmod = list(~ x1, ~ x2, ~ x1 + x2)
+#' # use global options
+#' optRCTtool(
+#'   RCTtool.arms = ~d,
+#'   RCTtool.xmod = list(~x1, ~x2, ~ x1 + x2)
 #' )
-#'
 #' balance_test(data = dt)
-#' clearRCTtool()
+#' balance_test(x1 ~ 0, data = dt)
+#' optRCTtool(clear = TRUE)
 #'
 #'
-balance_test <- function(mod, x = NULL, data) {
-  # check options
-  opt_treatment <- getOption("RCTtool.treatment") != ""
-  opt_xmod <- any(getOption("RCTtool.xmod") != "")
-
-  # add mod if empty argument and option is registered
+balance_test <- function(mod, data) {
+  # If mod is missing, search global options
   if (missing(mod)) {
-    if (opt_treatment) {
-      dmod <- getOption("RCTtool.treatment")
+    # check options
+    opt_set_arms <- getOption("RCTtool.arms") != ""
+    opt_set_xmod <- any(getOption("RCTtool.xmod") != "")
+
+    # if register, extract from global options
+    if (opt_set_arms & opt_set_xmod) {
+      # rhs
+      rhs <- all.vars(getOption("RCTtool.arms"))
+
+      #rhs
+      x <- lapply(getOption("RCTtool.xmod"), all.vars)
+      lhs <- unique(unlist(x))
     } else {
       stop(paste0(
-        "one-sided or two-sided formula must be specified in mod argument.",
-        "Another way is to register options('RCTtool.treatment')."
+        "Due to missing mod,",
+        "try to search options('RCTtool.arms') and options('RCTtool.xmod').",
+        "Since you don't register it, I cannot construct model.",
+        "Specify models in the mod argument or register global options."
       ))
     }
   } else {
-    if (length(all.vars(mod)) == 1) {
-      dmod <- mod
-    } else {
-      mod <- if (!is.list(mod)) list(mod) else mod
-      dmod <- NULL
-    }
-  }
+    parts <- parse_model(mod)
 
-  # If dmod is not NULL, create list of two-sided formulas
-  if (!is.null(dmod)) {
-    if (is.null(x)) {
-      if (opt_xmod) {
-        xmod <- getOption("RCTtool.xmod")
-        x <- lapply(xmod, all.vars)
-        x <- unique(unlist(x))
-        mod <- lapply(x, function(a) as.formula(paste0(a, "~", all.vars(dmod))))
+    # check rhs
+    if (length(parts$rhs) > 1) {
+      stop("Only one treatment variable in the rhs")
+    } else if (length(parts$rhs) == 0) {
+      opt_set_arms <- getOption("RCTtool.arms") != ""
+      if (opt_set_arms) {
+        parts$rhs <- all.vars(getOption("RCTtool.arms"))
       } else {
-        stop("Covariate vector must be specified.")
+        stop("Cannot find treatment arms in both mod and options.")
       }
-    } else {
-      mod <- lapply(x, function(a) as.formula(paste0(a, "~", all.vars(dmod))))
     }
+
+    # check lhs
+    if (length(parts$lhs) == 0) {
+      opt_set_xmod <- any(getOption("RCTtool.xmod") != "")
+      if (opt_set_xmod) {
+        x <- lapply(getOption("RCTtool.xmod"), all.vars)
+        parts$lhs <- unique(unlist(x))
+      } else {
+        stop("Cannot find covariates in both mod and options.")
+      }
+    }
+
+    lhs <- parts$lhs
+    rhs <- parts$rhs
   }
 
   # implement F-test
+  mod <- lapply(lhs, function(a) as.formula(paste(a, "~", rhs)))
   f <- lapply(mod, ftest, data)
   f <- dplyr::bind_rows(f)
 

@@ -56,6 +56,7 @@ If no outcome variable is specified,
 the standard deviation specified by the std_dev argument is used.
 }
 \examples{
+\dontrun{
 # DGP
 set.seed(120511)
 n <- 1000
@@ -79,6 +80,6 @@ power_analysis(~d, dt, ctrl = "A", alpha = 0.05, power = 0.8, std_dev = "y")
 setRCTtool(RCTtool.treatment = ~ d, RCTtool.control = "B")
 power_analysis(data = dt, alpha = 0.05, power = 0.8, std_dev = 0.2)
 clearRCTtool()
-
+}
 
 }

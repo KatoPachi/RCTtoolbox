@@ -36,7 +36,7 @@
 #' tmp <- power_analysis(~d, dt, alpha = 0.05, power = 0.8, std_dev = 0.2)
 #'
 #' # Balance test with two or more covariates
-#' btest <- balance_test(~d, c("x1", "x2"), dt)
+#' btest <- balance_test(x1 + x2 ~ d, dt)
 #'
 #' # table output of power analysis
 #' library(modelsummary)
@@ -225,7 +225,7 @@ rct_table.power_analysis <- function(
 #' dt <- data.frame(y, d, x1, x2)
 #'
 #' # Balance test with two or more covariates
-#' btest <- balance_test(~d, c("x1", "x2"), dt)
+#' btest <- balance_test(x1 + x2 ~ d, dt)
 #'
 #' # Output table
 #' library(modelsummary)

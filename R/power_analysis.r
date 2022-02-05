@@ -120,6 +120,7 @@ ttest_power <- function(
 #' @importFrom dplyr bind_rows
 #' @export
 #' @examples
+#' \dontrun{
 #' # DGP
 #' set.seed(120511)
 #' n <- 1000
@@ -143,7 +144,7 @@ ttest_power <- function(
 #' setRCTtool(RCTtool.treatment = ~ d, RCTtool.control = "B")
 #' power_analysis(data = dt, alpha = 0.05, power = 0.8, std_dev = 0.2)
 #' clearRCTtool()
-#'
+#' }
 #'
 power_analysis <- function(
   mod, data, ctrl = NULL,
