@@ -7,30 +7,9 @@
 #' The first argument must be a dataframe
 #' with a class supported by rct_plot (t_test).
 #' You can check the arguments that can be passed in
-#' the t_test class with `help(rct_plot.t_test)`.
+#' the t_test class with [rct_plot.t_test()].
 #'
 #' @export
-#' @examples
-#' # DGP
-#' set.seed(120511)
-#' n <- 1000
-#' x1 <- rnorm(n); x2 <- rnorm(n)
-#' d <- sample(c("A", "B", "C"), size = n, replace = TRUE)
-#'
-#' ya <- 0.2 + 0.5 * x1 + 0.01 * x2
-#' yb <- 1.2 + 0.3 * x2
-#' yc <- -1 - 0.2 * x1 + 0.5 * x2
-#' y <- ifelse(d == "A", ya, ifelse(d == "B", yb, yc))
-#'
-#' dt <- data.frame(y, d, x1, x2)
-#'
-#' # plot of result of t-test
-#' t <- ttest(y ~ d, dt)
-#' rct_plot(
-#'   t,
-#'   label = "{{mean}} [{{effect}}{{star}}]",
-#'   title = "Simulated Outcome"
-#' )
 #'
 rct_plot <- function(...) {
   UseMethod("rct_plot")
@@ -61,8 +40,10 @@ rct_plot <- function(...) {
 #' @param text_adjust numeric.
 #' Specify a value that corrects the label position along the y-axis.
 #' @param font_family character. Specify font family. Default is NULL.
+#' @param ylim a numeric vector of bounds of y-axis.
 #' @param flip logical. Specify whether to swap the x-axis and y-axis.
 #' Default is FALSE.
+#' @param facet_wrap logical. Whether to use `ggplot2::facet_wrap`
 #' @param \dots other arugments passing `simplegg`.
 #'
 #' @details By using the `label` argument,
@@ -90,6 +71,8 @@ rct_plot <- function(...) {
 #' @importFrom ggplot2 geom_text
 #' @importFrom ggplot2 labs
 #' @importFrom ggplot2 coord_flip
+#' @importFrom ggplot2 facet_wrap
+#' @importFrom ggplot2 ylim
 #' @importFrom forcats fct_rev
 #' @export
 #'
@@ -98,30 +81,41 @@ rct_plot <- function(...) {
 #' set.seed(120511)
 #' n <- 1000
 #' x1 <- rnorm(n); x2 <- rnorm(n)
-#' d <- sample(c("A", "B", "C"), size = n, replace = TRUE)
-#'
+#' d1 <- sample(c("A", "B", "C"), size = n, replace = TRUE)
+#' d2 <- ifelse(d1 == "A", "control", "treat")
 #' ya <- 0.2 + 0.5 * x1 + 0.01 * x2
 #' yb <- 1.2 + 0.3 * x2
-#' yc <- -1 - 0.2 * x1 + 0.5 * x2
-#' y <- ifelse(d == "A", ya, ifelse(d == "B", yb, yc))
+#' yc <- 0.2 * x1 + 0.5 * x2
+#' y1 <- ifelse(d1 == "A", ya, ifelse(d1 == "B", yb, yc))
+#' y2 <- ifelse(y1 > 1, 1, 0)
+#' dt <- data.frame(
+#'   outcome = y1,
+#'   bin_outcome = y2,
+#'   treat = d1,
+#'   bin_treat = d2,
+#'   x1,
+#'   x2
+#' )
 #'
-#' dt <- data.frame(y, d, x1, x2)
+#' # t-test
+#' set_optRCTtool(outcome ~ treat, ~ x1 + x2, dt, "A")
+#' est <- mean_diff_test(data = dt)
 #'
-#' # plot of result of t-test
-#' t <- ttest(y ~ d, dt)
+#' # visualization
 #' rct_plot(
-#'   t,
+#'   est,
 #'   label = "{{mean}} [{{effect}}{{star}}]",
 #'   title = "Simulated Outcome"
 #' )
 #'
 rct_plot.t_test <- function(
   data, confint = FALSE,
-  label = NULL, label_digits = 3,
+  label = "{{mean}}{{star}}", label_digits = 3,
   xlab = "Treatments", ylab = NULL,
   title = NULL, caption = NULL,
   text_size = 5, text_adjust = 0.2,
-  font_family = NULL, flip = FALSE,
+  font_family = getOption("RCTtool.plot_family"),
+  ylim = NULL, flip = FALSE, facet_wrap = FALSE,
   ...
 ) {
   treat <- ymin <- ymax <- labpos <- NULL
@@ -172,11 +166,12 @@ rct_plot.t_test <- function(
       )
   }
 
+  if (facet_wrap) plot <- plot + ggplot2::facet_wrap(~ outcome)
+  if (!is.null(ylim)) plot <- plot + ggplot2::ylim(ylim)
+
   if (is.null(ylab)) {
     ylab <- ifelse(confint, "Average (+/- 95%CI)", "Average (+/- Std.Err)")
   }
-
-  if (is.null(title)) title <- unique(data$outcome)
 
   plot <- plot +
     ggplot2::labs(

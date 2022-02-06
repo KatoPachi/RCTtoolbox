@@ -55,6 +55,10 @@ simplegg <- function(
         size = legend_title_size, family = font_family
       ),
       legend.position = "bottom",
+      # facet_wrap
+      strip.text = ggplot2::element_text(
+        size = axis_title_size, family = font_family
+      ),
       # caption
       plot.caption = ggplot2::element_text(
         size = caption_size, family = font_family

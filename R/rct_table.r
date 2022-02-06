@@ -19,51 +19,6 @@
 #'
 #' @export
 #'
-#' @examples
-#' # DGP
-#' set.seed(120511)
-#' n <- 1000
-#' x1 <- rnorm(n); x2 <- rnorm(n)
-#' d <- sample(c("A", "B", "C"), size = n, replace = TRUE)
-#'
-#' ya <- 0.2 + 0.5 * x1 + 0.01 * x2
-#' yb <- 1.2 + 0.3 * x2
-#' yc <- -1 - 0.2 * x1 + 0.5 * x2
-#' y <- ifelse(d == "A", ya, ifelse(d == "B", yb, yc))
-#' dt <- data.frame(y, d, x1, x2)
-#'
-#' # power analysis with variance assumption
-#' tmp <- power_analysis(~d, dt, alpha = 0.05, power = 0.8, std_dev = 0.2)
-#'
-#' # Balance test with two or more covariates
-#' btest <- balance_test(x1 + x2 ~ d, dt)
-#'
-#' # table output of power analysis
-#' library(modelsummary)
-#' rct_table(
-#'   tmp,
-#'   title = paste(
-#'     "Power Analysis:",
-#'     "Least Mean Difference to Keep 80% Power and 5% Significant Level"
-#'   ),
-#'   footnote = paste(
-#'     "Note: To calculate mean difference,",
-#'     "we assume that standard deviation of outcome is 0.2."
-#'   )
-#' )
-#'
-#' # Output table of balance test
-#' rct_table(btest, title = "Balance Test")
-#'
-#' # Run regression
-#' est <- rct_lm(y ~ d, xmod = list(~ x1 + x2), data = dt)
-#' rct_table(
-#'   est,
-#'   outcome_map = c("y" = "outcome"),
-#'   coef_map = c("dB" = "State B", "dC" = "State C"),
-#'   not_show_x = list("Covariates" = c("x1", "x2"))
-#' )
-#'
 rct_table <- function(...) {
   UseMethod("rct_table")
 }
@@ -81,7 +36,7 @@ rct_table <- function(...) {
 #' @param data dataframe with class "power_analysis"
 #' @param tar character. Specify which value to output.
 #' If "d", the effect size is output.
-#' If "unstd_effect" (default), the non-standarized effect size
+#' If "diff_mean" (default), the non-standarized effect size
 #' (i.e., absolute value of mean difference) is output.
 #' If "alpha", the significant level is output.
 #' If "power", the power is output.
@@ -107,25 +62,18 @@ rct_table <- function(...) {
 #' @export
 #'
 #' @examples
-#' # DGP
 #' set.seed(120511)
-#' n <- 1000
-#' x1 <- rnorm(n); x2 <- rnorm(n)
-#' d <- sample(c("A", "B", "C"), size = n, replace = TRUE)
-#'
-#' ya <- 0.2 + 0.5 * x1 + 0.01 * x2
-#' yb <- 1.2 + 0.3 * x2
-#' yc <- -1 - 0.2 * x1 + 0.5 * x2
-#' y <- ifelse(d == "A", ya, ifelse(d == "B", yb, yc))
-#' dt <- data.frame(y, d, x1, x2)
-#'
-#' # power analysis with variance assumption
-#' tmp <- power_analysis(~d, dt, alpha = 0.05, power = 0.8, std_dev = 0.2)
+#' d1 <- sample(LETTERS[1:5], size = 1000, replace = TRUE)
+#' d2 <- ifelse(d1 %in% LETTERS[1:3], "Control", "Treat")
+#' ex <- data.frame(treat = d1, treat2 = d2)
+#' set_optRCTtool(~treat, data = ex, ctrl = "A")
+#' est <- power_analysis(data = ex, alpha = 0.05, power = 0.8)
 #'
 #' # table output of power analysis
 #' library(modelsummary)
 #' rct_table(
-#'   tmp,
+#'   est,
+#'   dlab = "Experimental arms",
 #'   title = paste(
 #'     "Power Analysis:",
 #'     "Least Mean Difference to Keep 80% Power and 5% Significant Level"
@@ -137,10 +85,10 @@ rct_table <- function(...) {
 #' )
 #'
 rct_table.power_analysis <- function(
-  data, tar = "unstd_effect",
+  data, tar = "diff_mean",
   dlab = "Treatments", tardigits = 3, tarlab = "Mean Difference",
   title = NULL, footnote = NULL,
-  size = 15, output = "kableExtra",
+  size = getOption("RCTtool.table_fontsize"), output = "kableExtra",
   ...
 ) {
   # shape passed data
@@ -217,15 +165,17 @@ rct_table.power_analysis <- function(
 #' set.seed(120511)
 #' n <- 1000
 #' x1 <- rnorm(n); x2 <- rnorm(n)
-#' d <- sample(c("A", "B", "C"), size = n, replace = TRUE)
+#' d1 <- sample(c("A", "B", "C"), size = n, replace = TRUE)
+#' d2 <- ifelse(d1 == "A", "control", "treat")
 #' ya <- 0.2 + 0.5 * x1 + 0.01 * x2
 #' yb <- 1.2 + 0.3 * x2
 #' yc <- -1 - 0.2 * x1 + 0.5 * x2
-#' y <- ifelse(d == "A", ya, ifelse(d == "B", yb, yc))
-#' dt <- data.frame(y, d, x1, x2)
+#' y <- ifelse(d1 == "A", ya, ifelse(d1 == "B", yb, yc))
+#' dt <- data.frame(outcome = y, treat = d1, bin_treat = d2, x1, x2)
 #'
-#' # Balance test with two or more covariates
-#' btest <- balance_test(x1 + x2 ~ d, dt)
+#' # F-test
+#' set_optRCTtool(xmod = ~ x1 + x2, data = dt)
+#' btest <- balance_test(data = dt)
 #'
 #' # Output table
 #' library(modelsummary)
@@ -234,7 +184,7 @@ rct_table.power_analysis <- function(
 rct_table.balance_test <- function(
   data, digits = 3,
   title = NULL, output = "kableExtra",
-  footnote = NULL, size = 15,
+  footnote = NULL, size = getOption("RCTtool.table_fontsize"),
   ...
 ) {
   # number of experimental arms
@@ -326,24 +276,44 @@ rct_table.balance_test <- function(
 #' set.seed(120511)
 #' n <- 1000
 #' x1 <- rnorm(n); x2 <- rnorm(n)
-#' d <- sample(c("A", "B", "C"), size = n, replace = TRUE)
-#'
+#' d1 <- sample(c("A", "B", "C"), size = n, replace = TRUE)
+#' d2 <- ifelse(d1 == "A", "control", "treat")
 #' ya <- 0.2 + 0.5 * x1 + 0.01 * x2
 #' yb <- 1.2 + 0.3 * x2
-#' yc <- -1 - 0.2 * x1 + 0.5 * x2
-#' y <- ifelse(d == "A", ya, ifelse(d == "B", yb, yc))
+#' yc <- 0.2 * x1 + 0.5 * x2
+#' y1 <- ifelse(d1 == "A", ya, ifelse(d1 == "B", yb, yc))
+#' y2 <- ifelse(y1 > 1, 1, 0)
+#' dt <- data.frame(
+#'   outcome = y1,
+#'   binary = y2,
+#'   treat = d1,
+#'   bin_treat = d2,
+#'   x1,
+#'   x2
+#' )
 #'
-#' dt <- data.frame(y, d, x1, x2)
-#'
-#' # Run regression
-#' est <- rct_lm(y ~ d, xmod = list(~ x1 + x2), data = dt)
+#' # Linear regression
+#' set_optRCTtool(outcome + binary ~ treat, list(~ x1 + x2), dt, "A")
+#' est <- rct_lm(data = dt)
 #' rct_table(
 #'   est,
-#'   outcome_map = c("y" = "outcome"),
-#'   coef_map = c("dB" = "State B", "dC" = "State C"),
+#'   outcome_map = c(
+#'     "binary" = "Simulated outcome > 0",
+#'     "outcome" = "Simulated outcome"
+#'   ),
+#'   coef_map = c("treatB" = "State B", "treatC" = "State C"),
 #'   not_show_x = list("Covariates" = c("x1", "x2"))
 #' )
-#' 
+#'
+#' # Linear regression 2
+#' set_optRCTtool(outcome ~ treat, list(~x1, ~x2, ~ x1 + x2), dt, "A")
+#' est <- rct_lm(data = dt)
+#' rct_table(
+#'   est,
+#'   coef_map = c("treatB" = "State B", "treatC" = "State C"),
+#'   not_show_x = list("Covariates" = c("x1", "x2"))
+#' )
+#'
 rct_table.RCT_OLS <- function(
   object, coef_map,
   outcome_map = NULL, not_show_x = NULL,
@@ -351,7 +321,7 @@ rct_table.RCT_OLS <- function(
   digits = 3,
   stars = c("***" = .01, "**" = .05, "*" = .1),
   title = NULL, footnote = NULL,
-  output = "kableExtra", size = 15,
+  output = "kableExtra", size = getOption("RCTtool.table_fontsize"),
   ...
 ) {
   # Step1: Header of Outcome Labels
@@ -361,7 +331,9 @@ rct_table.RCT_OLS <- function(
   if (!is.null(outcome_map)) {
     # rename labels
     for (i in seq_len(length(outcome_map))) {
-      names(ylab)[grep(names(outcome_map)[i], names(ylab))] <- outcome_map[i]
+      pat <- names(outcome_map)[i]
+      newlab <- outcome_map[i]
+      names(ylab)[pat == names(ylab)] <- newlab
     }
   }
 
