@@ -21,8 +21,6 @@
 #' `effect` is a difference of mean between each group and the control.
 #' `p.value` is a p-value of t-test.
 #'
-#' @importFrom stats t.test
-#' @importFrom broom tidy
 #' @importFrom dplyr bind_rows
 #' @export
 #' @examples
