@@ -36,6 +36,7 @@ set_optRCTtool <- function(basicmod, xmod, data, ctrl, ...) {
     # parse basicmod and add arguments
     parse_basicmod <- parse_model(basicmod)
     args$RCTtool.outcome <- parse_basicmod$lhs
+    if (length(parse_basicmod$rhs) != 1) stop("Only one treatment variables.")
     args$RCTtool.arms <- parse_basicmod$rhs
 
     # experimental information and arguments

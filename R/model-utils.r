@@ -12,6 +12,18 @@ parse_model <- function(mod) {
   list(lhs = lhs, rhs = rhs)
 }
 
+#' Generate expanded version of basic model
+#'
+#' @param y a string vector with outcome variables
+#' @param d a string of treatment variable
+#'
+#' @importFrom stats as.formula
+#'
+#'
+expand_basic_mod <- function(y, d) {
+  lapply(y, function(x) as.formula(paste0(x, "~", d)))
+}
+
 #' Generate List of Regression Models
 #'
 #' @param basemod list of baseline model.
