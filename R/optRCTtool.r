@@ -30,9 +30,24 @@ set_optRCTtool <- function(basicmod, xmod, data, ctrl, ...) {
   args <- list(...)
 
   # parse basicmod and add arguments
-  parse_basicmod <- parse_model(basicmod)
-  args$RCTtool.outcome <- parse_basicmod$lhs
-  args$RCTtool.arms <- parse_basicmod$rhs
+  if (!missing(basicmod)) {
+    # parse basicmod and add arguments
+    parse_basicmod <- parse_model(basicmod)
+    args$RCTtool.outcome <- parse_basicmod$lhs
+    args$RCTtool.arms <- parse_basicmod$rhs
+
+    # experimental information and arguments
+    d <- data[[parse_basicmod$rhs]]
+    d <- if (!is.factor(d)) factor(d)
+    arms <- levels(d)
+    ctrl <- ifelse(missing(ctrl), arms[1], ctrl)
+    treated <- arms[grep(paste0("[^", ctrl, "]"), arms)]
+    level <- c(ctrl, treated)
+    args$RCTtool.arms_label <- arms
+    args$RCTtool.arms_level <- level
+    args$RCTtool.control <- ctrl
+    args$RCTtool.treated <- treated
+  }
 
   if (!missing(xmod)) {
     # parse xmod and add arguments
@@ -41,17 +56,6 @@ set_optRCTtool <- function(basicmod, xmod, data, ctrl, ...) {
     args$RCTtool.xmod <- xmod
     args$RCTtool.xlist <- xlist
   }
-  # experimental information and add arguments
-  d <- data[[parse_basicmod$rhs]]
-  d <- if (!is.factor(d)) factor(d)
-  arms <- levels(d)
-  ctrl <- ifelse(missing(ctrl), arms[1], ctrl)
-  treated <- arms[grep(paste0("[^", ctrl, "]"), arms)]
-  level <- c(ctrl, treated)
-  args$RCTtool.arms_label <- arms
-  args$RCTtool.arms_level <- level
-  args$RCTtool.control <- ctrl
-  args$RCTtool.treated <- treated
 
   # collect current option name
   opt <- names(options())
