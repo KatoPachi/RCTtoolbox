@@ -138,6 +138,7 @@ power_analysis <- function(arms, ctrl, data, std_dev = 1, ...) {
     dv <- data[[arms]]
     dv <- if (!is.factor(dv)) factor(dv)
     lev <- levels(dv)
+    if (!(ctrl %in% lev)) stop("Control cannot find.")
     treat <- lev[grep(paste0("[^", ctrl, "]"), lev)]
   }
 

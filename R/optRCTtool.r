@@ -10,6 +10,8 @@
 #' is the control.
 #' @param \dots Specify `option_name = option`
 #'
+#' @details If empty arguments, return current options.
+#'
 #' @export
 #' @examples
 #' \dontrun{

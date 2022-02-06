@@ -24,6 +24,9 @@ is the control.}
 \description{
 Manipulation Global Options for RCTtoolbox
 }
+\details{
+If empty arguments, return current options.
+}
 \examples{
 \dontrun{
 set.seed(120511)
