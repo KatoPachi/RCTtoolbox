@@ -63,12 +63,12 @@ balance_test <- function(xlist, arms, data) {
     if (all(label == "")) {
       warning("You should register option('RCTtool.arms_label')")
       dv <- data[[arms]]
-      dv <- if (!is.factor(dv)) factor(dv)
+      if (!is.factor(dv)) dv <- factor(dv)
       label <- levels(dv)
     }
   } else {
     dv <- data[[arms]]
-    dv <- if (!is.factor(dv)) factor(dv)
+    if (!is.factor(dv)) dv <- factor(dv)
     label <- levels(dv)
   }
 

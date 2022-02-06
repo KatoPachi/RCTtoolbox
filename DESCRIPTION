@@ -1,6 +1,6 @@
 Package: RCTtoolbox
 Title: Useful Wrapper Functions for Analyzing RCTs Data
-Version: 0.9.0
+Version: 0.9.1
 Authors@R: person(
     "Hiroki", "Kato",
     email = "vge008kh@student.econ.osaka-u.ac.jp",

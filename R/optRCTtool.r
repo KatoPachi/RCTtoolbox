@@ -41,7 +41,7 @@ set_optRCTtool <- function(basicmod, xmod, data, ctrl, ...) {
 
     # experimental information and arguments
     d <- data[[parse_basicmod$rhs]]
-    d <- if (!is.factor(d)) factor(d)
+    if (!is.factor(d)) d <- factor(d)
     arms <- levels(d)
     ctrl <- ifelse(missing(ctrl), arms[1], ctrl)
     treated <- arms[grep(paste0("[^", ctrl, "]"), arms)]

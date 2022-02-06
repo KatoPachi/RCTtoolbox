@@ -110,13 +110,13 @@ rct_lm <- function(
     if (all(treat == "")) {
       warning("You should register option('RCTtool.treated')")
       dv <- data[[arms]]
-      dv <- if (!is.factor(dv)) factor(dv)
+      if (!is.factor(dv)) dv <- factor(dv)
       lev <- levels(dv)
       treat <- lev[grep(paste0("[^", ctrl, "]"), lev)]
     }
   } else {
     dv <- data[[arms]]
-    dv <- if (!is.factor(dv)) factor(dv)
+    if (!is.factor(dv)) dv <- factor(dv)
     lev <- levels(dv)
     if (!(ctrl %in% lev)) stop("Control cannot find.")
     treat <- lev[grep(paste0("[^", ctrl, "]"), lev)]
