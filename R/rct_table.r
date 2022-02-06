@@ -399,7 +399,8 @@ rct_table.RCT_OLS <- function(
     stars = stars,
     align = align,
     add_rows = tab,
-    title = title
+    title = title,
+    output = output
   )
   # Step 5: additional options for kabelExtra and flextable
   if (output == "kableExtra") {
