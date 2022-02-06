@@ -76,6 +76,14 @@ balance_test <- function(xlist, arms, data) {
   f <- lapply(xlist, ftest, arms, label, data)
   f <- dplyr::bind_rows(f)
 
+  # convert factor
+  level <- getOption("RCTtool.arms_level")
+  if (any(!(label %in% level))) {
+    f$item <- factor(f$item, levels = c(label, "P-value (F-test)"))
+  } else {
+    f$item <- factor(f$item, levels = c(level, "P-value (F-test)"))
+  }
+
   # output
   class(f) <- append(class(f), "balance_test")
   f
