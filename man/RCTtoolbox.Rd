@@ -6,7 +6,9 @@
 \alias{RCTtoolbox-package}
 \title{Useful Wrapper Functions for RCTs}
 \description{
-What the package does (one paragraph).
+This package is a collection of useful wrapper functions for analyzing RCT data.
+    It corresponds to three or more treatment conditions.
+    It also offers global options to facilitate consistent analysis.
 }
 \section{Package Options}{
 
@@ -33,6 +35,6 @@ output by {kableExtra} and {flextable} used through {modelsummary}.
 }
 
 \author{
-\strong{Maintainer}: First Last \email{first.last@example.com} (\href{https://orcid.org/YOUR-ORCID-ID}{ORCID})
+\strong{Maintainer}: Hiroki Kato \email{vge008kh@student.econ.osaka-u.ac.jp}
 
 }

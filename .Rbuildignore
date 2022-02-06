@@ -1,3 +1,4 @@
 ^tmp
 ^LICENSE\.md$
 ^.vscode
+^README\.Rmd$
