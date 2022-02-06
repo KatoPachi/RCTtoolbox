@@ -14,16 +14,17 @@ What the package does (one paragraph).
 RCTtoolbox provides the following \code{\link[=options]{options()}}
 to facilitate consistent analysis:
 \itemize{
-\item \code{RCTtool.outcome}: One-sided formula with
-outcome variables on the left-hand side of the formula
-(e.g. \code{y1 + y2 ~ 0})
-\item \code{RCTtool.arms}: One-sided formula with
-treatment variables on the right-hand side of the formula
-(e.g. \code{~ treatment}).
+\item \code{RCTtool.outcome}: a string vector with outcome variables.
+\item \code{RCTtool.arms}: a string of treatment variables.
+\item \code{RCTtool.arms_label}: a string vector with treatment labels.
+\item \code{RCTtool.arms_level}: a string vector with
+levels for factor of treatment variables.
 \item \code{RCTtool.control}: String of control arm.
+\item \code{RCTtool.treated}: String of treated arms.
 \item \code{RCTtool.xmod}: A list of one-sided formulas with covariates
 on the right-hand side of the equation.
-See \code{\link[=rct_lm]{rct_lm()}} in detail.
+See \code{rct_lm()} in detail.
+\item \code{RCTtool.xlist}: String vector with covariates.
 \item \code{RCTtool.plot_family}: The name of the font family
 used to output the figure with {ggplot2}.
 \item \code{RCTtool.table_fontsize}: The font size in the table

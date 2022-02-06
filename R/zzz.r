@@ -5,16 +5,17 @@
 #' RCTtoolbox provides the following [options()]
 #' to facilitate consistent analysis:
 #' \itemize{
-#'   \item `RCTtool.outcome`: One-sided formula with
-#'     outcome variables on the left-hand side of the formula
-#'     (e.g. `y1 + y2 ~ 0`)
-#'   \item `RCTtool.arms`: One-sided formula with
-#'     treatment variables on the right-hand side of the formula
-#'     (e.g. `~ treatment`).
+#'   \item `RCTtool.outcome`: a string vector with outcome variables.
+#'   \item `RCTtool.arms`: a string of treatment variables.
+#'   \item `RCTtool.arms_label`: a string vector with treatment labels.
+#'   \item `RCTtool.arms_level`: a string vector with
+#'     levels for factor of treatment variables.
 #'   \item `RCTtool.control`: String of control arm.
+#'   \item `RCTtool.treated`: String of treated arms.
 #'   \item `RCTtool.xmod`: A list of one-sided formulas with covariates
 #'     on the right-hand side of the equation.
-#'     See [rct_lm()] in detail.
+#'     See `rct_lm()` in detail.
+#'   \item `RCTtool.xlist`: String vector with covariates.
 #'   \item `RCTtool.plot_family`: The name of the font family
 #'     used to output the figure with {ggplot2}.
 #'   \item `RCTtool.table_fontsize`: The font size in the table
@@ -30,8 +31,12 @@
   opt_pkg <- list(
     RCTtool.outcome = "",
     RCTtool.arms = "",
+    RCTtool.arms_label = "",
+    RCTtool.arms_level = "",
     RCTtool.control = "",
+    RCTtool.treated = "",
     RCTtool.xmod = "",
+    RCTtool.xlist = "",
     RCTtool.plot_family = "",
     RCTtool.table_fontsize = 15
   )

@@ -191,12 +191,25 @@ power_analysis <- function(
   # extract treatment vector
   dv <- data[[dlab]]
 
-  # experimental information
-  exparm <- expinfo(dv, ctrl)
+  # register experimental information
+  flag_temp_set <- any(
+    getOption("RCTtool.arms_level") == "" |
+    getOption("RCTtool.control") == "" |
+    getOption("RCTtool.treated") == ""
+  )
+  if (flag_temp_set) {
+    if (getOption("RCTtool.control") != "") {
+      optRCTtool_expinfo(dv, ctrl = getOption("RCTtool.control"))
+    } else {
+      optRCTtool_expinfo(dv, ctrl = ctrl)
+    }
+  }
+  ctrl <- getOption("RCTtool.control")
+  treat <- getOption("RCTtool.treated")
 
   # calculate number of observations
-  n0 <- length(dv[dv == exparm$ctrl])
-  n1 <- lapply(exparm$treat, function(x) length(dv[dv == x]))
+  n0 <- length(dv[dv == ctrl])
+  n1 <- lapply(treat, function(x) length(dv[dv == x]))
 
   # perform power analysis
   pwr <- lapply(
@@ -206,13 +219,13 @@ power_analysis <- function(
 
   # output dataframe
   out <- dplyr::bind_rows(pwr)
-  out$treat <- exparm$treat
+  out$treat <- treat
 
   # calculate unstandarized effect
   if (!is.numeric(std_dev)) {
     ylab <- std_dev
-    v0 <- var(data[data[[dlab]] == exparm$ctrl, ][[ylab]], na.rm = TRUE)
-    y1 <- lapply(exparm$treat, function(x) data[data[[dlab]] == x, ][[ylab]])
+    v0 <- var(data[data[[dlab]] == ctrl, ][[ylab]], na.rm = TRUE)
+    y1 <- lapply(treat, function(x) data[data[[dlab]] == x, ][[ylab]])
     v1 <- lapply(y1, var, na.rm = TRUE)
     std_dev <- sqrt((unlist(v1) + v0) / 2)
   }
@@ -222,10 +235,18 @@ power_analysis <- function(
   # add row containing control information
   out <- dplyr::bind_rows(
     out,
-    data.frame(n0 = n0, n1 = n0, treat = exparm$ctrl)
+    data.frame(n0 = n0, n1 = n0, treat = ctrl)
   )
   # convert character of treatment to factor
-  out$treat <- factor(out$treat, levels = exparm$level)
+  out$treat <- factor(out$treat, levels = getOption("RCTtool.arms_level"))
+
+  # clear temporal options
+  optRCTtool(
+    RCTtool.arms_label = "",
+    RCTtool.arms_level = "",
+    RCTtool.control = "",
+    RCTtool.treated = ""
+  )
 
   # output
   class(out) <- append("power_analysis", class(out))

@@ -1,3 +1,17 @@
+#' Parse Model
+#'
+#' @param mod formula
+#'
+#' @importFrom stats terms
+#'
+#'
+parse_model <- function(mod) {
+  full_var <- all.vars(mod)
+  rhs <- attr(terms(mod), "term.labels")
+  lhs <- full_var[!(full_var %in% rhs)]
+  list(lhs = lhs, rhs = rhs)
+}
+
 #' Generate List of Regression Models
 #'
 #' @param basemod list of baseline model.
@@ -10,14 +24,7 @@
 #'
 #' @importFrom fixest xpd
 #' @importFrom stats update
-#' @export
 #'
-#' @examples
-#' base <- list(
-#'   y1 ~ d,
-#'   y2 ~ d
-#' )
-#' genmod(base, ~ x1 + x2)
 #'
 genmod <- function(basemod, xmod = NULL, include_onlyd = TRUE) {
   # check list
