@@ -1,13 +1,13 @@
 Package: RCTtoolbox
-Title: What the Package Does (One Line, Title Case)
-Version: 0.0.0.9000
-Authors@R: 
-    person(given = "First",
-           family = "Last",
-           role = c("aut", "cre"),
-           email = "first.last@example.com",
-           comment = c(ORCID = "YOUR-ORCID-ID"))
-Description: What the package does (one paragraph).
+Title: Useful Wrapper Functions for Analyzing RCTs Data
+Version: 0.9.0
+Authors@R: person(
+    "Hiroki", "Kato",
+    email = "vge008kh@student.econ.osaka-u.ac.jp",
+    role = c("aut", "cre"))
+Description: This package is a collection of useful wrapper functions for analyzing RCT data.
+    It corresponds to three or more treatment conditions.
+    It also offers global options to facilitate consistent analysis.
 License: MIT + file LICENSE
 Encoding: UTF-8
 LazyData: true
@@ -27,3 +27,5 @@ Imports:
     modelsummary (>= 0.9.1),
     stats,
     tables (>= 0.9.6)
+Depends:
+    R (>= 4.0.5)
