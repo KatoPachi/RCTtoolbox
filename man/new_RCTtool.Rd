@@ -4,7 +4,7 @@
 \alias{new_RCTtool}
 \title{Create New Toolbox}
 \usage{
-new_RCTtool(baseline = NULL, covariate = NULL, data = NULL, ctrl = NULL)
+new_RCTtool(baseline, covariate = NULL, data, ctrl)
 }
 \arguments{
 \item{baseline}{two-sided formula with

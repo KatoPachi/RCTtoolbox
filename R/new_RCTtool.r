@@ -57,13 +57,11 @@ new_RCTtool <- function(baseline,
   }
 
   # crate R6 class
-  newR6 <- RCTtoolbox$new(
+  RCTtoolbox$new(
     baseline,
     covariate,
     unique_x,
     data,
     ctrl
   )
-
-  newR6
 }
