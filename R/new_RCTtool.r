@@ -29,15 +29,15 @@
 #' }
 #'
 #'
-new_RCTtool <- function(baseline = NULL,
+new_RCTtool <- function(baseline,
                         covariate = NULL,
-                        data = NULL,
-                        ctrl = NULL
+                        data,
+                        ctrl
                         ) {
   # check arguments
-  if (is.null(baseline)) abort_null_arg("baseline")
-  if (is.null(data)) abort_null_arg("data")
-  if (is.null(ctrl)) abort_null_arg("ctrl")
+  if (missing(baseline)) abort_empty_arg("baseline")
+  if (missing(data)) abort_empty_arg("data")
+  if (missing(ctrl)) abort_empty_arg("ctrl")
 
   # parse baseline
   lhs <- all.vars(f_lhs(baseline))

@@ -3,10 +3,10 @@
 #' @importFrom rlang abort
 #'
 #'
-abort_null_arg <- function(arg) {
+abort_empty_arg <- function(arg) {
   msg <- glue("Argument {arg} must be specified")
   abort(
-    "error_null_arg",
+    "error_empty_arg",
     message = msg,
     arg = arg
   )
