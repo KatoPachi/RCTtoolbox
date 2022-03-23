@@ -21,7 +21,6 @@
 #' @importFrom rlang enquo
 #' @importFrom dplyr bind_rows
 #'
-#' @export
 #' @examples
 #' \dontrun{
 #' data(RubellaNudge)
@@ -30,7 +29,8 @@
 #'   data = subset(RubellaNudge, coupon == 1),
 #'   ctrl = "A"
 #' )
-#' rct$active("ttest")$run()$result
+#' rct$ttest()$result
+#' rct$ttest(ctrl = "C", bootp = 50)$result
 #' }
 #'
 ttest <- function(baseline,

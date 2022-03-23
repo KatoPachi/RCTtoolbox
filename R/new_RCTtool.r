@@ -11,6 +11,8 @@
 #' covariates used in regression and balance test on RHS.
 #' @param data data.frame/tibble object you want to use.
 #' @param ctrl string of the control arm.
+#' @param direct string of direct calling.
+#' @param \dots other arguments
 #'
 #' @importFrom rlang f_lhs
 #' @importFrom rlang f_rhs
@@ -20,7 +22,7 @@
 #' @examples
 #' \dontrun{
 #' data(RubellaNudge)
-#' new_RCTtool(
+#' create_RCTtoolbox(
 #'   baseline = itest + ivacc ~ treat,
 #'   covariate = ~ age + educ,
 #'   data = RubellaNudge,
@@ -29,11 +31,13 @@
 #' }
 #'
 #'
-new_RCTtool <- function(baseline,
-                        covariate = NULL,
-                        data,
-                        ctrl
-                        ) {
+create_RCTtoolbox <- function(baseline,
+                              covariate = NULL,
+                              data,
+                              ctrl,
+                              direct = NULL,
+                              ...
+                              ) {
   # check arguments
   if (missing(baseline)) abort_empty_arg("baseline")
   if (missing(data)) abort_empty_arg("data")
@@ -57,11 +61,21 @@ new_RCTtool <- function(baseline,
   }
 
   # crate R6 class
-  RCTtoolbox$new(
-    baseline,
-    covariate,
-    unique_x,
-    data,
-    ctrl
-  )
+  if (is.null(direct)) {
+    RCTtoolbox$new(
+      baseline,
+      covariate,
+      unique_x,
+      data,
+      ctrl
+    )
+  } else if (direct == "ttest") {
+    RCTtoolbox.ttest$new(
+      baseline,
+      data,
+      ctrl,
+      ...
+    )
+  }
+
 }

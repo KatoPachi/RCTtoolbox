@@ -18,28 +18,19 @@ RCTtoolbox <- R6::R6Class("RCTtoolbox",
     print = function(...) {
       y <- unlist(lapply(private$base, function(x) all.vars(x)[1]))
       arm <- all.vars(private$base[[1]])[2]
-      cat("Toolbox information:\n")
-      cat("- Outcomes:", y, "\n")
-      cat("- Treatment variable:", arm, "\n")
-      cat("  - Control arm:", private$ctrl, "\n")
-      if (!is.null(private$xvec)) {
-        cat("- Covariates:", private$xvec, "\n")
-      }
-      if (!is.null(private$data)) {
-        cat("NOTE: You have already registered data.frame/tibble object.\n")
-      }
+      cat("------------ Activate Information ------------\n")
+      cat("Create new toolbox (Class: RCTtoolbox)\n")
+      cat("- Outcomes: ", y, "\n")
+      cat("- Treatment: ", arm, "\n")
+      cat("  - Control arm: ", private$ctrl, "\n")
+      cat("- Covariates: ", private$xvec, "\n")
+      cat("------------------ Methods ------------------\n")
+      cat("- print(): Show this message\n")
+      cat("- ttest(): Run t-test")
     },
-    active = function(type) {
-      switch(type,
-        "ttest" = RCTtoolbox.ttest$new(
-          private$base,
-          private$cov,
-          private$xvec,
-          private$data,
-          private$ctrl
-        ),
-        stop("Invalid `type` value")
-      )
+    ttest = function(baseline, data, ctrl, ...) {
+      if (missing(ctrl)) ctrl <- private$ctrl
+      RCTtoolbox.ttest$new(private$base, private$data, ctrl, ...)
     }
   ),
   private = list(
@@ -52,22 +43,22 @@ RCTtoolbox <- R6::R6Class("RCTtoolbox",
 )
 
 RCTtoolbox.ttest <- R6::R6Class("RCTtoolbox.ttest",
-  inherit = RCTtoolbox,
   public = list(
     result = NULL,
-    print = function(...) {
-      super$print()
-      cat("ACTIVATE: t-test\n")
-    },
-    run = function(ctrl, ...) {
-      if (missing(ctrl)) ctrl <- private$ctrl
+    initialize = function(baseline, data, ctrl, ...) {
       self$result <- ttest(
-        private$base,
-        private$data,
+        baseline,
+        data,
         ctrl,
         ...
       )
-      invisible(self)
+    },
+    print = function(...) {
+      cat("------------ Activate Information ------------\n")
+      cat("Run t-test (Class: RCTtoolbox.ttest)\n")
+      cat("------------- Fields and Methods -------------\n")
+      cat("- result: Store estimated result\n")
+      cat("- print(): Show this message\n")
     }
   )
 )
