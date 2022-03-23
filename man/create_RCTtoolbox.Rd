@@ -4,7 +4,7 @@
 \alias{create_RCTtoolbox}
 \title{Create New Toolbox}
 \usage{
-create_RCTtoolbox(baseline, covariate = NULL, data, ctrl, direct = NULL, ...)
+create_RCTtoolbox(baseline, covariate = NULL, data, levels, labels = NULL, ...)
 }
 \arguments{
 \item{baseline}{two-sided formula with
@@ -15,9 +15,10 @@ covariates used in regression and balance test on RHS.}
 
 \item{data}{data.frame/tibble object you want to use.}
 
-\item{ctrl}{string of the control arm.}
+\item{levels}{character vector of levels of experimental arms.
+The first element must be control.}
 
-\item{direct}{string of direct calling.}
+\item{labels}{character vector of labels of experimental arms.}
 
 \item{\dots}{other arguments}
 }

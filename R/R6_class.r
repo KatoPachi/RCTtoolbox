@@ -8,12 +8,14 @@ RCTtoolbox <- R6::R6Class("RCTtoolbox",
                           covariate = NULL,
                           xvec = NULL,
                           data = NULL,
-                          ctrl = NULL) {
+                          levels = NULL,
+                          labels = NULL) {
       private$base <- baseline
       private$cov <- covariate
       private$xvec <- xvec
       private$data <- data
-      private$ctrl <- ctrl
+      private$levels <- levels
+      private$labels <- labels
     },
     print = function(...) {
       y <- unlist(lapply(private$base, function(x) all.vars(x)[1]))
@@ -22,15 +24,22 @@ RCTtoolbox <- R6::R6Class("RCTtoolbox",
       cat("Create new toolbox (Class: RCTtoolbox)\n")
       cat("- Outcomes: ", y, "\n")
       cat("- Treatment: ", arm, "\n")
-      cat("  - Control arm: ", private$ctrl, "\n")
+      cat("  - Control arm: ", private$levels[1], "\n")
       cat("- Covariates: ", private$xvec, "\n")
       cat("------------------ Methods ------------------\n")
       cat("- print(): Show this message\n")
-      cat("- ttest(): Run t-test")
+      cat("- ttest(): Run t-test\n")
     },
-    ttest = function(baseline, data, ctrl, ...) {
-      if (missing(ctrl)) ctrl <- private$ctrl
-      RCTtoolbox.ttest$new(private$base, private$data, ctrl, ...)
+    ttest = function(ctrl, ...) {
+      if (missing(ctrl)) ctrl <- private$levels[1]
+      RCTtoolbox.ttest$new(
+        private$base,
+        private$data,
+        ctrl,
+        private$levels,
+        private$labels,
+        ...
+      )
     }
   ),
   private = list(
@@ -38,20 +47,18 @@ RCTtoolbox <- R6::R6Class("RCTtoolbox",
     cov = NULL,
     xvec = NULL,
     data = NULL,
-    ctrl = NULL
+    levels = NULL,
+    labels = NULL
   )
 )
 
 RCTtoolbox.ttest <- R6::R6Class("RCTtoolbox.ttest",
   public = list(
     result = NULL,
-    initialize = function(baseline, data, ctrl, ...) {
-      self$result <- ttest(
-        baseline,
-        data,
-        ctrl,
-        ...
-      )
+    initialize = function(baseline, data, ctrl, levels, labels, ...) {
+      res <- ttest(baseline, data, ctrl, ...)
+      res$arms <- factor(res$arms, levels, labels)
+      self$result <- res
     },
     print = function(...) {
       cat("------------ Activate Information ------------\n")
@@ -59,6 +66,8 @@ RCTtoolbox.ttest <- R6::R6Class("RCTtoolbox.ttest",
       cat("------------- Fields and Methods -------------\n")
       cat("- result: Store estimated result\n")
       cat("- print(): Show this message\n")
-    }
+      cat("- plot(): Visualization\n")
+    },
+    plot = function(...) rctplot(self, ...)
   )
 )

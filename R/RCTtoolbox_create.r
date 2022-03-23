@@ -10,8 +10,9 @@
 #' @param covariate (list of) one-sided formulas with
 #' covariates used in regression and balance test on RHS.
 #' @param data data.frame/tibble object you want to use.
-#' @param ctrl string of the control arm.
-#' @param direct string of direct calling.
+#' @param levels character vector of levels of experimental arms.
+#' The first element must be control.
+#' @param labels character vector of labels of experimental arms.
 #' @param \dots other arguments
 #'
 #' @importFrom rlang f_lhs
@@ -34,14 +35,21 @@
 create_RCTtoolbox <- function(baseline,
                               covariate = NULL,
                               data,
-                              ctrl,
-                              direct = NULL,
+                              levels,
+                              labels = NULL,
                               ...
                               ) {
   # check arguments
   if (missing(baseline)) abort_empty_arg("baseline")
   if (missing(data)) abort_empty_arg("data")
-  if (missing(ctrl)) abort_empty_arg("ctrl")
+  if (missing(levels)) abort_empty_arg("levels")
+  if (!is.null(labels)) {
+    if (length(levels) != length(labels)) {
+      abort_length_arg("`label`", length(levels), length(labels))
+    }
+  } else {
+    labels <- levels
+  }
 
   # parse baseline
   lhs <- all.vars(f_lhs(baseline))
@@ -61,21 +69,12 @@ create_RCTtoolbox <- function(baseline,
   }
 
   # crate R6 class
-  if (is.null(direct)) {
-    RCTtoolbox$new(
-      baseline,
-      covariate,
-      unique_x,
-      data,
-      ctrl
-    )
-  } else if (direct == "ttest") {
-    RCTtoolbox.ttest$new(
-      baseline,
-      data,
-      ctrl,
-      ...
-    )
-  }
-
+  RCTtoolbox$new(
+    baseline,
+    covariate,
+    unique_x,
+    data,
+    levels,
+    labels
+  )
 }
