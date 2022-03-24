@@ -76,7 +76,8 @@ rctplot.RCTtoolbox.ttest <- function(obj,
                                      ylab = "Average (+/- Std.Err.)",
                                      title = NULL,
                                      caption = NULL,
-                                     inplot_lab_format = NULL,
+                                     inplot_lab_format =
+                                       "{round(mean1, 3)}{pstar}",
                                      inplot_lab_size = 5,
                                      inplot_lab_adjust = 0,
                                      ylim = NULL,
@@ -92,11 +93,16 @@ rctplot.RCTtoolbox.ttest <- function(obj,
       pval <= .05 ~ "**",
       pval <= .1 ~ "*",
       TRUE ~ ""
-    )) %>%
-    mutate(
-      ymin = mean1 - se1 * zval,
-      ymax = mean1 + se1 * zval
-    )
+    ))
+
+  method <- unique(pdt$method)
+  if (method == "Welch t-test") {
+    pdt <- pdt %>%
+      mutate(
+        ymin = mean1 - se1 * zval,
+        ymax = mean1 + se1 * zval
+      )
+  }
 
   if (!is.null(inplot_lab_format)) {
     pdt <- pdt %>% mutate(label = glue(inplot_lab_format))
@@ -117,7 +123,11 @@ rctplot.RCTtoolbox.ttest <- function(obj,
   plist <- lapply(outcome, function(z) {
     input <- subset(pdt, outcome == z)
     args <- lapply(args, eval_tidy, list(outcome = z))
-    inplot_lab_pos <- max(input$ymax) + inplot_lab_adjust
+    inplot_lab_pos <- if (method == "Welch t-test") {
+      max(input$ymax) + inplot_lab_adjust
+    } else {
+      max(input$mean1) + inplot_lab_adjust
+    }
 
     if (flip) {
       p <- ggplot(input, aes(x = fct_rev(arms), y = mean1))
@@ -127,8 +137,12 @@ rctplot.RCTtoolbox.ttest <- function(obj,
 
     p <- p +
       geom_bar(stat = "identity", fill = "grey80", color = "black") +
-      geom_hline(aes(yintercept = 0)) +
-      geom_errorbar(aes(ymin = ymin, ymax = ymax), width = 0.5)
+      geom_hline(aes(yintercept = 0))
+
+    if (method == "Welch t-test") {
+      p <- p +
+        geom_errorbar(aes(ymin = ymin, ymax = ymax), width = 0.5)
+    }
 
     if (!is.null(input$label)) {
       p <- p +

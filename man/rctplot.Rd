@@ -14,7 +14,7 @@ rctplot(...)
   ylab = "Average (+/- Std.Err.)",
   title = NULL,
   caption = NULL,
-  inplot_lab_format = NULL,
+  inplot_lab_format = "{round(mean1, 3)}{pstar}",
   inplot_lab_size = 5,
   inplot_lab_adjust = 0,
   ylim = NULL,

@@ -30,14 +30,13 @@ RCTtoolbox <- R6::R6Class("RCTtoolbox",
       cat("- print(): Show this message\n")
       cat("- ttest(): Run t-test\n")
     },
-    ttest = function(ctrl, ...) {
-      if (missing(ctrl)) ctrl <- private$levels[1]
+    ttest = function(ctrl = NULL, ...) {
       RCTtoolbox.ttest$new(
         private$base,
         private$data,
-        ctrl,
         private$levels,
         private$labels,
+        ctrl,
         ...
       )
     }
@@ -55,10 +54,8 @@ RCTtoolbox <- R6::R6Class("RCTtoolbox",
 RCTtoolbox.ttest <- R6::R6Class("RCTtoolbox.ttest",
   public = list(
     result = NULL,
-    initialize = function(baseline, data, ctrl, levels, labels, ...) {
-      res <- ttest(baseline, data, ctrl, ...)
-      res$arms <- factor(res$arms, levels, labels)
-      self$result <- res
+    initialize = function(baseline, data, levels, labels, ctrl = NULL, ...) {
+      self$result <- ttest(baseline, data, levels, labels, ctrl, ...)
     },
     print = function(...) {
       cat("------------ Activate Information ------------\n")
@@ -67,7 +64,9 @@ RCTtoolbox.ttest <- R6::R6Class("RCTtoolbox.ttest",
       cat("- result: Store estimated result\n")
       cat("- print(): Show this message\n")
       cat("- plot(): Visualization\n")
+      cat("- summary(): Summary of result\n")
     },
-    plot = function(...) rctplot(self, ...)
+    plot = function(...) rctplot(self, ...),
+    summary = function(...) summary(self, ...)
   )
 )

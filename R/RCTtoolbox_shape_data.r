@@ -17,6 +17,8 @@
 clean_RCTdata <- function(baseline,
                           covariate = NULL,
                           data,
+                          levels,
+                          labels = NULL,
                           subset = NULL,
                           weights = NULL,
                           cluster = NULL) {
@@ -48,5 +50,14 @@ clean_RCTdata <- function(baseline,
     na.action = na.omit
   )
 
-  do.call("model.frame", args)
+  dt <- do.call("model.frame", args)
+
+  # factor treatments
+  if (missing(levels)) abort_empty_arg("levels")
+  if (is.null(labels)) labels <- levels
+
+  dvar <- all.vars(baseline)[2]
+  dt[[dvar]] <- factor(dt[[dvar]], levels, labels)
+
+  dt
 }

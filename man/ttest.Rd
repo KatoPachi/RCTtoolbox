@@ -7,7 +7,9 @@
 ttest(
   baseline,
   data,
-  ctrl,
+  levels,
+  labels = NULL,
+  ctrl = NULL,
   subset = NULL,
   weights = NULL,
   bootse = NULL,
@@ -44,13 +46,13 @@ and each group (including the control group).
 \examples{
 \dontrun{
 data(RubellaNudge)
-rct <- new_RCTtool(
+rct <- create_RCTtoolbox(
   atest + avacc ~ treat,
   data = subset(RubellaNudge, coupon == 1),
   ctrl = "A"
 )
-rct$ttest()$result
-rct$ttest(ctrl = "C", bootp = 50)$result
+rct$ttest()$summary()
+rct$ttest(ctrl = "C", bootp = 50)$summary()
 }
 
 }
