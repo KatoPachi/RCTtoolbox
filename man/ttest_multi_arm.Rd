@@ -5,13 +5,12 @@
 \title{T-test for Multiple Experimental Arms}
 \usage{
 ttest_multi_arm(
-  baseline,
-  data,
-  levels,
-  labels = NULL,
-  ctrl = NULL,
-  subset,
-  weights,
+  baseline = NULL,
+  data = NULL,
+  treat_levels = NULL,
+  treat_labels = NULL,
+  subset = NULL,
+  weights = NULL,
   bootse = NULL,
   bootp = NULL,
   seed = 120511

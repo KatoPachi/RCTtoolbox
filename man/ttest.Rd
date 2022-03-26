@@ -2,29 +2,20 @@
 % Please edit documentation in R/RCTtoolbox_ttest.r
 \name{ttest}
 \alias{ttest}
-\title{RCTtoolbox: T-test}
+\title{Perform Two-Sided T-Test/Permutation Test}
 \usage{
-ttest(
-  baseline,
-  data,
-  levels,
-  labels = NULL,
-  ctrl = NULL,
-  subset = NULL,
-  weights = NULL,
-  bootse = NULL,
-  bootp = NULL,
-  seed = 120511
-)
+ttest(y1, y0, w1 = NULL, w0 = NULL, bootse = NULL, bootp = NULL, seed = 120511)
 }
 \arguments{
-\item{baseline}{(list of) baseline formulas. \code{outcome ~ treatment}.}
+\item{y1}{numeric. Outcome in group 1.}
 
-\item{data}{data.frame/tibble object you want to use.}
+\item{y0}{numeric. Outcome in group 0.}
 
-\item{subset}{subset condition.}
+\item{w1}{numeric. Weight in group 1.
+If NULL, unweighted sample average is calculated.}
 
-\item{weights}{weight variable.}
+\item{w0}{numeric. Weight in group 0.
+If NULL, unweighted sample average is calculated.}
 
 \item{bootse}{numeric. Number of bootstrap sample to calculate se.
 If NULL, se is calculated by effective sample size.}
@@ -36,23 +27,5 @@ If NULL, perform (welch) two-sided t-test.}
 \item{seed}{numeric. seed value.}
 }
 \description{
-This function performs a t-test to test the null hypothesis
-that there is no mean difference between the two groups.
-When there are three or more treatment groups,
-this function tests the difference of mean between
-the control group specified by the user with the \code{ctrl} argument
-and each group (including the control group).
-}
-\examples{
-\dontrun{
-data(RubellaNudge)
-rct <- create_RCTtoolbox(
-  atest + avacc ~ treat,
-  data = subset(RubellaNudge, coupon == 1),
-  ctrl = "A"
-)
-rct$ttest()$summary()
-rct$ttest(ctrl = "C", bootp = 50)$summary()
-}
-
+Perform Two-Sided T-Test/Permutation Test
 }

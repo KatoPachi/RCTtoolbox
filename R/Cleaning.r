@@ -55,6 +55,7 @@ clean_RCTdata <- function(baseline = NULL,
   # factor treatments
   dvar <- all.vars(baseline)[2]
   dt[[dvar]] <- factor(dt[[dvar]], treat_levels)
+  dt[[dvar]] <- droplevels(dt[[dvar]])
 
   # outcome vector, design matrix, weight vector, cluster vector
   list(

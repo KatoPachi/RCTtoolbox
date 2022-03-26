@@ -34,10 +34,10 @@ RCTtoolbox <- R6::R6Class("RCTtoolbox",
     },
     ttest = function(ctrl = NULL, ...) {
       RCTtoolbox.ttest$new(
-        private$base,
+        private$formula.yd,
         private$data,
-        private$levels,
-        private$labels,
+        private$dvec.levels,
+        private$dvec.labels,
         ctrl,
         ...
       )
@@ -59,7 +59,9 @@ RCTtoolbox.ttest <- R6::R6Class("RCTtoolbox.ttest",
   public = list(
     result = NULL,
     initialize = function(baseline, data, levels, labels, ctrl = NULL, ...) {
-      self$result <- ttest(baseline, data, levels, labels, ctrl, ...)
+      self$result <- ttest_multi_mod_arm(
+        baseline, data, levels, labels, ctrl, ...
+      )
     },
     print = function(...) {
       cat("------------ Activate Information ------------\n")
