@@ -27,54 +27,48 @@
 #'   baseline = itest + ivacc ~ treat,
 #'   covariate = ~ age + educ,
 #'   data = RubellaNudge,
-#'   ctrl = "A"
+#'   treat_levels = LETTERS[1:7]
 #' )
 #' }
 #'
 #'
-create_RCTtoolbox <- function(baseline,
+create_RCTtoolbox <- function(baseline = NULL,
                               covariate = NULL,
-                              data,
-                              levels,
-                              labels = NULL,
-                              ...
+                              data = NULL,
+                              treat_levels = NULL,
+                              treat_labels = treat_levels
                               ) {
   # check arguments
-  if (missing(baseline)) abort_empty_arg("baseline")
-  if (missing(data)) abort_empty_arg("data")
-  if (missing(levels)) abort_empty_arg("levels")
-  if (!is.null(labels)) {
-    if (length(levels) != length(labels)) {
-      abort_length_arg("`label`", length(levels), length(labels))
-    }
-  } else {
-    labels <- levels
+  if (is.null(baseline)) abort_empty("baseline")
+  if (is.null(data)) abort_empty("data")
+  if (is.null(treat_levels)) abort_empty("treat_levels")
+  if (length(treat_levels) != length(treat_labels)) {
+    abort_length("`label`", length(treat_levels), length(treat_labels))
   }
 
   # parse baseline
-  lhs <- all.vars(f_lhs(baseline))
-  rhs <- all.vars(f_rhs(baseline))
-  if (length(rhs) > 1) abort_length_arg("RHS of `baseline`", 1, rhs)
-  baseline <- lapply(lhs, function(x) formula(paste(x, "~", rhs)))
+  yvec <- all.vars(f_lhs(baseline))
+  dvec <- all.vars(f_rhs(baseline))
+  if (length(dvec) > 1) abort_length("RHS of `baseline`", 1, dvec)
+  formula_yd <- lapply(yvec, function(x) formula(paste(x, "~", dvec)))
 
   # parse covariate
   if (!is.null(covariate)) {
-    if (!is.list(covariate)) covariate <- list(covariate)
-    unique_x <- unique(unlist(lapply(covariate, all.vars)))
-    covariate <- lapply(covariate, function(x) {
-      formula(paste(". ~ .", as.character(x)[2], sep = " + "))
-    })
+    if (!is.list(covariate)) formula_x <- list(covariate)
+    xvec <- unique(unlist(lapply(formula_x, all.vars)))
   } else {
-    unique_x <- NULL
+    formula_x <- xvec <- NULL
   }
 
   # crate R6 class
   RCTtoolbox$new(
-    baseline,
-    covariate,
-    unique_x,
-    data,
-    levels,
-    labels
+    formula_yd,
+    formula_x,
+    yvec,
+    xvec,
+    dvec,
+    treat_levels,
+    treat_labels,
+    data
   )
 }

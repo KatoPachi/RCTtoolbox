@@ -4,7 +4,13 @@
 \alias{create_RCTtoolbox}
 \title{Create New Toolbox}
 \usage{
-create_RCTtoolbox(baseline, covariate = NULL, data, levels, labels = NULL, ...)
+create_RCTtoolbox(
+  baseline = NULL,
+  covariate = NULL,
+  data = NULL,
+  treat_levels = NULL,
+  treat_labels = treat_levels
+)
 }
 \arguments{
 \item{baseline}{two-sided formula with
@@ -35,7 +41,7 @@ create_RCTtoolbox(
   baseline = itest + ivacc ~ treat,
   covariate = ~ age + educ,
   data = RubellaNudge,
-  ctrl = "A"
+  treat_levels = LETTERS[1:7]
 )
 }
 

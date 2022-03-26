@@ -4,27 +4,29 @@
 #'
 RCTtoolbox <- R6::R6Class("RCTtoolbox",
   public = list(
-    initialize = function(baseline = NULL,
-                          covariate = NULL,
+    initialize = function(formula_yd = NULL,
+                          formula_x = NULL,
+                          yvec = NULL,
                           xvec = NULL,
-                          data = NULL,
-                          levels = NULL,
-                          labels = NULL) {
-      private$base <- baseline
-      private$cov <- covariate
+                          dvec = NULL,
+                          dvec_levels = NULL,
+                          dvec_labels = NULL,
+                          data = NULL) {
+      private$formula.yd <- formula_yd
+      private$formula.x <- formula_x
+      private$yvec <- yvec
       private$xvec <- xvec
+      private$dvec <- dvec
+      private$dvec.levels <- dvec_levels
+      private$dvec.labels <- dvec_labels
       private$data <- data
-      private$levels <- levels
-      private$labels <- labels
     },
     print = function(...) {
-      y <- unlist(lapply(private$base, function(x) all.vars(x)[1]))
-      arm <- all.vars(private$base[[1]])[2]
       cat("------------ Activate Information ------------\n")
       cat("Create new toolbox (Class: RCTtoolbox)\n")
-      cat("- Outcomes: ", y, "\n")
-      cat("- Treatment: ", arm, "\n")
-      cat("  - Control arm: ", private$levels[1], "\n")
+      cat("- Outcomes: ", private$yvec, "\n")
+      cat("- Treatment: ", private$dvec, "\n")
+      cat("  - Control arm: ", private$dvec.levels[1], "\n")
       cat("- Covariates: ", private$xvec, "\n")
       cat("------------------ Methods ------------------\n")
       cat("- print(): Show this message\n")
@@ -42,12 +44,14 @@ RCTtoolbox <- R6::R6Class("RCTtoolbox",
     }
   ),
   private = list(
-    base = NULL,
-    cov = NULL,
+    formula.yd = NULL,
+    formula.x = NULL,
+    yvec = NULL,
     xvec = NULL,
-    data = NULL,
-    levels = NULL,
-    labels = NULL
+    dvec = NULL,
+    dvec.levels = NULL,
+    dvec.labels = NULL,
+    data = NULL
   )
 )
 

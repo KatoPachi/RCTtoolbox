@@ -5,11 +5,10 @@
 \title{Shape dataset}
 \usage{
 clean_RCTdata(
-  baseline,
+  baseline = NULL,
   covariate = NULL,
-  data,
-  levels,
-  labels = NULL,
+  data = NULL,
+  treat_levels = NULL,
   subset = NULL,
   weights = NULL,
   cluster = NULL
