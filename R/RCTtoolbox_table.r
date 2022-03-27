@@ -11,16 +11,15 @@
 #'
 #' @param \dots Specify the arguments to pass to this function.
 #' The first argument must be a dataframe
-#' with a class supported by rct_table (power_analysis).
+#' with a class supported by rcttable (power_analysis).
 #' You can check the arguments that can be passed in
-#' the power_analysis class by `help(rct_table.power_analysis)`,
-#' in the balance_test class by `help(rct_table.balance_test)`,
-#' in the RCT_OLS class by `help(rct_table.rct_lm)`.
+#' the power_analysis class by `help(rcttable.power_analysis)`,
+#' in the balance_test class by `help(rcttable.balance_test)`,
+#' in the RCT_OLS class by `help(rcttable.rct_lm)`.
 #'
-#' @export
 #'
-rct_table <- function(...) {
-  UseMethod("rct_table")
+rcttable <- function(...) {
+  UseMethod("rcttable")
 }
 
 #' Output Table for Power Analysis
@@ -30,27 +29,27 @@ rct_table <- function(...) {
 #' For tabular output,
 #' this function uses the `datasummary` function of the {modelsummary} package
 #' that corresponds to various outputs.
-#' `rct_table.power_analysis` supports "kableExtra" (for PDF and HTML output),
+#' `rcttable.power_analysis` supports "kableExtra" (for PDF and HTML output),
 #' "flextable" (MS Word and MS Powerpoint), and "data.frame".
 #'
-#' @param data dataframe with class "power_analysis"
-#' @param tar character. Specify which value to output.
+#' @param obj object with R6 class "RCTtoolbox.power.analysis"
+#' @param treat.label character. Label of treatment column.
+#' @param target character. Specify which value to output.
 #' If "d", the effect size is output.
 #' If "diff_mean" (default), the non-standarized effect size
 #' (i.e., absolute value of mean difference) is output.
 #' If "alpha", the significant level is output.
 #' If "power", the power is output.
-#' @param dlab character. Label of treatment column.
-#' @param tardigits numeric.
+#' @param target.digits numeric.
 #' Specify the number of decimal places to display (Default is 3).
-#' @param tarlab character. Label of output `tar` column.
+#' @param target.label character. Label of output `tar` column.
 #' @param title character. Table title.
 #' @param footnote character. Footnote (kableExtra or flextable).
 #' @param size numeric. Font size (kableExtra or flextable).
 #' @param output character. Output format.
 #' @param \dots Other arguments to pass to `kableExtra::kable_styling`
 #'
-#' @method rct_table power_analysis
+#' @method rcttable RCTtoolbox.power.analysis
 #' @importFrom modelsummary datasummary
 #' @importFrom magrittr %>%
 #' @importFrom kableExtra kable_styling
@@ -59,7 +58,6 @@ rct_table <- function(...) {
 #' @importFrom flextable fontsize
 #' @importFrom tables Heading
 #' @importFrom tables Format
-#' @export
 #'
 #' @examples
 #' set.seed(120511)
@@ -71,7 +69,7 @@ rct_table <- function(...) {
 #'
 #' # table output of power analysis
 #' library(modelsummary)
-#' rct_table(
+#' rcttable(
 #'   est,
 #'   dlab = "Experimental arms",
 #'   title = paste(
@@ -84,25 +82,30 @@ rct_table <- function(...) {
 #'   )
 #' )
 #'
-rct_table.power_analysis <- function(
-  data, tar = "diff_mean",
-  dlab = "Treatments", tardigits = 3, tarlab = "Mean Difference",
-  title = NULL, footnote = NULL,
-  size = getOption("RCTtool.table_fontsize"), output = "kableExtra",
-  ...
-) {
+rcttable.RCTtoolbox.power.analysis <- function(obj,
+                                               treat.label = "Treatments",
+                                               target = "diff_mean",
+                                               target.digits = 3,
+                                               target.label = "Mean Difference",
+                                               title = NULL,
+                                               footnote = NULL,
+                                               size = 12,
+                                               output = "kableExtra",
+                                               ...) {
   # shape passed data
-  usedt <- data[, c("treat", "n1", tar)]
-  colnames(usedt) <- c("d", "n", "tar")
+  data <- obj$result
+  usedt <- data[, c("arms", "n1", target)]
+  colnames(usedt) <- c("d", "n", "tage")
 
   # basic datasummary
   rawvalue <- function(x) x
   tab <- modelsummary::datasummary(
-    Heading(dlab, character.only = TRUE) * d ~ (` ` = rawvalue) * (
-      Heading("N") * n * Format(digits = 0) +
-      Heading(tarlab, character.only = TRUE) * tar *
-      Format(digits = tardigits)
-    ),
+    Heading(treat.label, character.only = TRUE) * d ~
+      (` ` = rawvalue) * (
+        Heading("N") * n * Format(digits = 0) +
+        Heading(target.label, character.only = TRUE) * tage *
+        Format(digits = target.digits)
+      ),
     data = usedt,
     title = title,
     output = output,
@@ -136,7 +139,7 @@ rct_table.power_analysis <- function(
 #' For tabular output,
 #' this function uses the `datasummary` function of the {modelsummary} package
 #' that corresponds to various outputs.
-#' `rct_table.power_analysis` supports "kableExtra" (for PDF and HTML output),
+#' `rcttable.power_analysis` supports "kableExtra" (for PDF and HTML output),
 #' "flextable" (MS Word and MS Powerpoint), and "data.frame".
 #'
 #' @param data data.frame with class "balance_test"
@@ -157,8 +160,8 @@ rct_table.power_analysis <- function(
 #' @importFrom flextable add_header_row
 #' @importFrom flextable fontsize
 #'
-#' @method rct_table balance_test
-#' @export
+#' @method rcttable balance_test
+#'
 #'
 #' @examples
 #' # DGP
@@ -179,9 +182,9 @@ rct_table.power_analysis <- function(
 #'
 #' # Output table
 #' library(modelsummary)
-#' rct_table(btest, title = "Balance Test")
+#' rcttable(btest, title = "Balance Test")
 #'
-rct_table.balance_test <- function(
+rcttable.balance_test <- function(
   data, digits = 3,
   title = NULL, output = "kableExtra",
   footnote = NULL, size = getOption("RCTtool.table_fontsize"),
@@ -268,8 +271,8 @@ rct_table.balance_test <- function(
 #' @importFrom flextable add_header_row
 #' @importFrom flextable fontsize
 #'
-#' @method rct_table RCT_OLS
-#' @export
+#' @method rcttable RCT_OLS
+#'
 #'
 #' @examples
 #' # DGP
@@ -295,7 +298,7 @@ rct_table.balance_test <- function(
 #' # Linear regression
 #' set_optRCTtool(outcome + binary ~ treat, list(~ x1 + x2), dt, "A")
 #' est <- rct_lm(data = dt)
-#' rct_table(
+#' rcttable(
 #'   est,
 #'   outcome_map = c(
 #'     "binary" = "Simulated outcome > 0",
@@ -308,13 +311,13 @@ rct_table.balance_test <- function(
 #' # Linear regression 2
 #' set_optRCTtool(outcome ~ treat, list(~x1, ~x2, ~ x1 + x2), dt, "A")
 #' est <- rct_lm(data = dt)
-#' rct_table(
+#' rcttable(
 #'   est,
 #'   coef_map = c("treatB" = "State B", "treatC" = "State C"),
 #'   not_show_x = list("Covariates" = c("x1", "x2"))
 #' )
 #'
-rct_table.RCT_OLS <- function(
+rcttable.RCT_OLS <- function(
   object, coef_map,
   outcome_map = NULL, not_show_x = NULL,
   keep_gof = "Num.Obs.|R2|R2 Adj.",

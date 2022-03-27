@@ -163,8 +163,8 @@ ttest <- function(y1,
 #' If NULL, perform (welch) two-sided t-test.
 #' @param seed numeric. seed value.
 #'
-#' @importFrom rlang quo_is_null
 #' @importFrom dplyr bind_rows
+#' @importFrom rlang f_lhs
 #'
 #'
 ttest_multi_arm <- function(baseline = NULL,
@@ -209,8 +209,7 @@ ttest_multi_arm <- function(baseline = NULL,
   bind_res2$arms <- gsub(all.vars(baseline)[2], "", names(res2))
 
   bind_res <- bind_rows(res1, bind_res2)
-  bind_res$outcome <- all.vars(baseline)[1]
-  if (is.null(treat_labels)) treat_labels <- treat_levels
+  bind_res$outcome <- all.vars(f_lhs(baseline))
   bind_res$arms <- factor(bind_res$arms, treat_levels, treat_labels)
   bind_res
 }
@@ -264,14 +263,7 @@ ttest_multi_mod_arm <- function(baseline = NULL,
   if (!is.list(baseline)) baseline <- list(baseline)
 
   # fix order of factor
-  if (!is.null(ctrl)) {
-    new_ctrl <- seq_len(length(treat_levels))[treat_levels == ctrl]
-    new_treat <- seq_len(length(treat_levels))[treat_levels != ctrl]
-    treat_levels <- treat_levels[c(new_ctrl, new_treat)]
-    if (!is.null(treat_labels)) {
-      treat_labels <- treat_labels[c(new_ctrl, new_treat)]
-    }
-  }
+  treat <- reorder_arms(treat_levels, treat_labels, ctrl)
 
   # capture expressions
   subset <- enexpr(subset)
@@ -282,8 +274,8 @@ ttest_multi_mod_arm <- function(baseline = NULL,
     baseline,
     ttest_multi_arm,
     data,
-    treat_levels,
-    treat_labels,
+    treat$levels,
+    treat$labels,
     subset,
     weights,
     bootse,

@@ -22,6 +22,33 @@ summary.RCTtoolbox.ttest <- function(object, ...) {
     rownames(show_mat) <- dt$arms
     show_mat[rownames(show_mat) == ctrl, 2:4] <- NA
     printCoefmat(show_mat, digits = 4, na.print = "", signif.stars = FALSE)
-    cat("\n\n")
+    cat("\n")
   }
+}
+
+#'
+#' Summary of power analysis
+#'
+#' @method summary RCTtoolbox.power.analysis
+#' @importFrom stats printCoefmat
+#'
+#'
+summary.RCTtoolbox.power.analysis <- function(object, ...) {
+  res <- object$result
+  ctrl <- res[res$arms == levels(res$arms)[1], ]
+  treat <- res[res$arms != levels(res$arms)[1], ]
+  cat("Post Power Analysis for Two-Sided T-Test\n")
+  cat("Control Arm:", levels(res$arms)[1], "(N =", ctrl$n1, ")\n")
+  alpha <- unique(treat$alpha)
+  cat("Significant Size:", alpha, "\n")
+  power <- unique(treat$power)
+  cat("Power:", power, "\n")
+  sd <- unique(treat$sd)
+  cat("Std.dev:", sd)
+  cat(" (Use transformation standardized effect to unstandardized one)\n")
+  show <- as.matrix(treat[, c("n1", "d", "diff_mean")])
+  colnames(show) <- c("Num.Obs.", "Standardized", "Unstandardized")
+  rownames(show) <- treat$arms
+  printCoefmat(show, cs.ind = 0)
+  cat("\n")
 }

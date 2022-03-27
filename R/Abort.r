@@ -27,3 +27,14 @@ abort_length <- function(arg, true, obj) {
     obj = obj
   )
 }
+
+abort_empty_num <- function(obs, true) {
+  msg <- glue("Need {true} missed arguments")
+  msg <- glue("{msg}; not {obs}")
+  abort(
+    "error_number_of_missed_args",
+    message = msg,
+    true = true,
+    obs = obs
+  )
+}

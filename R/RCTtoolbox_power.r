@@ -22,21 +22,20 @@
 #' @importFrom stats pt
 #' @importFrom stats qt
 #' @importFrom stats uniroot
-#' @export
-#'
-#' @examples
-#' ttest_power(n0 = 100, n1 = 100, alpha = 0.05, power = 0.8)
 #'
 #'
-ttest_power <- function(n0, n1, d, alpha, power) {
+ttest_power <- function(n0,
+                        n1,
+                        d,
+                        alpha,
+                        power) {
   # extract arguments
   comp <- as.list(match.call())[-1]
   full_args <- c("n0", "n1", "d", "alpha", "power")
   miss_arg <- full_args[!(full_args %in% names(comp))]
-  message(paste0("Argument '", miss_arg, "' is missing"))
 
   # check length(comp) == 4
-  if (length(comp) != 4) stop("One missing argument must be needed.")
+  if (length(comp) != 4) abort_empty_num(5 - length(comp), 1)
 
   # define function which returns specified power - calculated power
   power_func <- function(n0, n1, d, alpha, power) {
@@ -64,7 +63,7 @@ ttest_power <- function(n0, n1, d, alpha, power) {
   comp[[miss_arg]] <- do.call("uniroot", comp)$root
 
   # output
-  unlist(comp[full_args])
+  data.frame(comp[full_args])
 }
 
 #'
@@ -95,90 +94,73 @@ ttest_power <- function(n0, n1, d, alpha, power) {
 #' You can pass `d` (effect size), `alpha` (significant level), and
 #' `power` (power).
 #'
-#' @return tibble (and data.frame) with class "power_analysis"
-#'
 #' @importFrom dplyr bind_rows
-#' @importFrom stats var
-#' @export
+#' @importFrom stats model.frame
+#' @importFrom stats model.matrix
+#' @importFrom rlang enquo
+#' @importFrom rlang eval_tidy
+#'
 #' @examples
-#' set.seed(120511)
-#' d1 <- sample(LETTERS[1:5], size = 1000, replace = TRUE)
-#' d2 <- ifelse(d1 %in% LETTERS[1:3], "Control", "Treat")
-#' ex <- data.frame(treat = d1, treat2 = d2)
-#' set_optRCTtool(~treat, data = ex, ctrl = "A")
-#' power_analysis(data = ex, alpha = 0.05, power = 0.8)
-#' power_analysis("treat2", "Control", ex, alpha = 0.05, power = 0.8)
-#' clear_optRCTtool()
+#' \dontrun{
+#' data(RubellaNudge)
+#' rct <- create_RCTtoolbox(
+#'   atest + avacc ~ treat,
+#'   data = RubellaNudge,
+#'   treat_levels = LETTERS[1:7]
+#' )
+#'
+#' rct$power(alpha = 0.05, power = 0.8, sd = 0.2)$result
+#' }
 #'
 #'
-power_analysis <- function(arms, ctrl, data, std_dev = 1, ...) {
-  # check RCTtool.arms option
-  if (missing(arms)) {
-    arms <- getOption("RCTtool.arms")
-    if (arms == "") stop("Not register option('RCTtool.arms')")
-  }
-
-  # check RCTtool.control option
-  if (missing(ctrl)) {
-    ctrl <- getOption("RCTtool.control")
-    if (ctrl == "") stop("Not register option('RCTtool.control')")
-  }
-
-  #check RCTtool.treated option
-  if (missing(arms)) {
-    treat <- getOption("RCTtool.treated")
-    if (all(treat == "")) {
-      warning("You should register option('RCTtool.treated')")
-      dv <- data[[arms]]
-      if (!is.factor(dv)) dv <- factor(dv)
-      lev <- levels(dv)
-      treat <- lev[grep(paste0("[^", ctrl, "]"), lev)]
-    }
-  } else {
-    dv <- data[[arms]]
-    if (!is.factor(dv)) dv <- factor(dv)
-    lev <- levels(dv)
-    if (!(ctrl %in% lev)) stop("Control cannot find.")
-    treat <- lev[grep(paste0("[^", ctrl, "]"), lev)]
-  }
-
-  # calculate number of observations
-  n0 <- length(dv[dv == ctrl])
-  n1 <- lapply(treat, function(x) length(dv[dv == x]))
+power_calculation <- function(treat = NULL,
+                              data = NULL,
+                              treat_levels = NULL,
+                              treat_labels = NULL,
+                              ctrl = NULL,
+                              subset = NULL,
+                              sd = 1,
+                              ...) {
+  # clean data
+  order_d <- reorder_arms(treat_levels, treat_labels, ctrl)
+  model <- as.formula(paste("~", treat))
+  clean <- clean_RCTdata(
+    model,
+    data = data,
+    treat_levels = order_d$levels,
+    subset = enexpr(subset)
+  )
+  use <- clean$design[, -1]
 
   # perform power analysis
   pass_ttest_power <- list(...)
-  pass_ttest_power$n0 <- n0
-  pwr <- lapply(n1, function(x) {
-    pass_ttest_power$n1 <- x
+  pass_ttest_power$n0 <- sum(1 - rowSums(use))
+  pwr <- apply(use, MARGIN = 2, function(n) {
+    pass_ttest_power$n1 <- sum(n)
     do.call("ttest_power", pass_ttest_power)
   })
 
   # output dataframe
-  out <- dplyr::bind_rows(pwr)
-  out$treat <- treat
+  out <- bind_rows(pwr)
+  out$arms <- gsub(treat, "", names(pwr))
 
   # calculate unstandarized effect
-  if (!is.numeric(std_dev)) {
-    ylab <- std_dev
-    v0 <- var(data[data[[arms]] == ctrl, ][[ylab]], na.rm = TRUE)
-    y1 <- lapply(treat, function(x) data[data[[arms]] == x, ][[ylab]])
-    v1 <- lapply(y1, var, na.rm = TRUE)
-    std_dev <- sqrt((unlist(v1) + v0) / 2)
-  }
-  out$std_dev <- std_dev
-  out$diff_mean <- out$d * out$std_dev
+  out$sd <- sd
+  out$diff_mean <- out$d * out$sd
 
   # add row containing control information
-  out <- dplyr::bind_rows(
-    out,
-    data.frame(n0 = n0, n1 = n0, treat = ctrl)
+  out <- bind_rows(
+    data.frame(
+      n0 = pass_ttest_power$n0,
+      n1 = pass_ttest_power$n0,
+      arms = order_d$levels[1]
+    ),
+    out
   )
 
   # convert character of treatment to factor
-  out$treat <- factor(out$treat, levels = c(ctrl, treat))
+  out$arms <- factor(out$arms, order_d$levels, order_d$labels)
 
   # output
-  class(out) <- append("power_analysis", class(out))
   out
 }
