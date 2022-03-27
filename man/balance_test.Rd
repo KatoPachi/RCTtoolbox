@@ -2,53 +2,36 @@
 % Please edit documentation in R/balance_test.r
 \name{balance_test}
 \alias{balance_test}
-\title{Blance Test by F-test of Overall Significance in Linear Regression}
+\title{F-test of Overall Siginificance in Linear Regression}
 \usage{
-balance_test(xlist, arms, data)
+balance_test(
+  baseline = NULL,
+  data = NULL,
+  treat_levels = NULL,
+  ctrl = NULL,
+  subset = NULL,
+  weights = NULL,
+  cluster = NULL,
+  ...
+)
 }
 \arguments{
-\item{xlist}{string vector with covariates.
-If missing, try to find form \code{option("RCTtool.xlist")}}
+\item{baseline}{two-sided formula \code{covariate ~ treat}}
 
-\item{arms}{string of treatment variables.
-If missing, try to find from \code{option("RCTtool.arms")}}
+\item{data}{data.frame/tibble you want to use}
 
-\item{data}{data which you want to use.}
-}
-\value{
-A data frame with \code{balance_test} class
+\item{treat_levels}{order of experimental arms}
+
+\item{ctrl}{specify control arm if you want change}
+
+\item{subset}{subset condition of data}
+
+\item{weights}{weight variable}
+
+\item{cluster}{cluster variable}
+
+\item{\dots}{pass to \code{estimatr::lm_robust()}}
 }
 \description{
-This function performs a balance test of the treatment
-with multiple covariates.
-The balance test calculates the mean of each group
-and the F-test by linear regression analysis.
-}
-\examples{
-# DGP
-set.seed(120511)
-n <- 1000
-x1 <- rnorm(n); x2 <- rnorm(n)
-d1 <- sample(c("A", "B", "C"), size = n, replace = TRUE)
-d2 <- ifelse(d1 == "A", "control", "treat")
-ya <- 0.2 + 0.5 * x1 + 0.01 * x2
-yb <- 1.2 + 0.3 * x2
-yc <- -1 - 0.2 * x1 + 0.5 * x2
-y <- ifelse(d1 == "A", ya, ifelse(d1 == "B", yb, yc))
-dt <- data.frame(outcome = y, treat = d1, bin_treat = d2, x1, x2)
-
-# F-test
-set_optRCTtool(outcome ~ treat, ~ x1, dt, "A")
-
-balance_test(data = dt)
-balance_test(data = subset(dt, treat != "B"))
-balance_test(c("x1", "x2"), data = dt)
-balance_test(arms = "bin_treat", data = dt)
-
-set_optRCTtool(xmod = ~ x1 + x2, data = dt)
-balance_test(data = dt)
-
-clear_optRCTtool()
-
-
+F-test of Overall Siginificance in Linear Regression
 }

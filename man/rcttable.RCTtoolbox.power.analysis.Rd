@@ -54,26 +54,17 @@ that corresponds to various outputs.
 "flextable" (MS Word and MS Powerpoint), and "data.frame".
 }
 \examples{
-set.seed(120511)
-d1 <- sample(LETTERS[1:5], size = 1000, replace = TRUE)
-d2 <- ifelse(d1 \%in\% LETTERS[1:3], "Control", "Treat")
-ex <- data.frame(treat = d1, treat2 = d2)
-set_optRCTtool(~treat, data = ex, ctrl = "A")
-est <- power_analysis(data = ex, alpha = 0.05, power = 0.8)
-
-# table output of power analysis
-library(modelsummary)
-rcttable(
-  est,
-  dlab = "Experimental arms",
-  title = paste(
-    "Power Analysis:",
-    "Least Mean Difference to Keep 80\% Power and 5\% Significant Level"
-  ),
-  footnote = paste(
-    "Note: To calculate mean difference,",
-    "we assume that standard deviation of outcome is 0.2."
-  )
+\dontrun{
+data(RubellaNudge)
+rct <- create_RCTtoolbox(
+  atest + avacc ~ treat,
+  ~ age + educ,
+  RubellaNudge,
+  LETTERS[1:7]
 )
+
+rct$power(alpha = 0.05, power = 0.8)$table()
+
+}
 
 }

@@ -60,27 +60,18 @@ rcttable <- function(...) {
 #' @importFrom tables Format
 #'
 #' @examples
-#' set.seed(120511)
-#' d1 <- sample(LETTERS[1:5], size = 1000, replace = TRUE)
-#' d2 <- ifelse(d1 %in% LETTERS[1:3], "Control", "Treat")
-#' ex <- data.frame(treat = d1, treat2 = d2)
-#' set_optRCTtool(~treat, data = ex, ctrl = "A")
-#' est <- power_analysis(data = ex, alpha = 0.05, power = 0.8)
-#'
-#' # table output of power analysis
-#' library(modelsummary)
-#' rcttable(
-#'   est,
-#'   dlab = "Experimental arms",
-#'   title = paste(
-#'     "Power Analysis:",
-#'     "Least Mean Difference to Keep 80% Power and 5% Significant Level"
-#'   ),
-#'   footnote = paste(
-#'     "Note: To calculate mean difference,",
-#'     "we assume that standard deviation of outcome is 0.2."
-#'   )
+#' \dontrun{
+#' data(RubellaNudge)
+#' rct <- create_RCTtoolbox(
+#'   atest + avacc ~ treat,
+#'   ~ age + educ,
+#'   RubellaNudge,
+#'   LETTERS[1:7]
 #' )
+#'
+#' rct$power(alpha = 0.05, power = 0.8)$table()
+#'
+#' }
 #'
 rcttable.RCTtoolbox.power.analysis <- function(obj,
                                                treat.label = "Treatments",
@@ -143,6 +134,7 @@ rcttable.RCTtoolbox.power.analysis <- function(obj,
 #' "flextable" (MS Word and MS Powerpoint), and "data.frame".
 #'
 #' @param data data.frame with class "balance_test"
+#' @param treat.label character. Label of treatment column.
 #' @param digits numeric.
 #' Specify the number of decimal places to display (Default is 3).
 #' @param title character. Table title.
@@ -160,36 +152,34 @@ rcttable.RCTtoolbox.power.analysis <- function(obj,
 #' @importFrom flextable add_header_row
 #' @importFrom flextable fontsize
 #'
-#' @method rcttable balance_test
-#'
+#' @method rcttable RCTtoolobox.balance.test
 #'
 #' @examples
-#' # DGP
-#' set.seed(120511)
-#' n <- 1000
-#' x1 <- rnorm(n); x2 <- rnorm(n)
-#' d1 <- sample(c("A", "B", "C"), size = n, replace = TRUE)
-#' d2 <- ifelse(d1 == "A", "control", "treat")
-#' ya <- 0.2 + 0.5 * x1 + 0.01 * x2
-#' yb <- 1.2 + 0.3 * x2
-#' yc <- -1 - 0.2 * x1 + 0.5 * x2
-#' y <- ifelse(d1 == "A", ya, ifelse(d1 == "B", yb, yc))
-#' dt <- data.frame(outcome = y, treat = d1, bin_treat = d2, x1, x2)
+#' \dontrun{
+#' data(RubellaNudge)
+#' rct <- create_RCTtoolbox(
+#'   atest + avacc ~ treat,
+#'   ~ age + educ,
+#'   RubellaNudge,
+#'   LETTERS[1:7]
+#' )
 #'
-#' # F-test
-#' set_optRCTtool(xmod = ~ x1 + x2, data = dt)
-#' btest <- balance_test(data = dt)
+#' rct$balance(subset = coupon == 1)$table()
 #'
-#' # Output table
-#' library(modelsummary)
-#' rcttable(btest, title = "Balance Test")
+#' }
 #'
-rcttable.balance_test <- function(
-  data, digits = 3,
-  title = NULL, output = "kableExtra",
-  footnote = NULL, size = getOption("RCTtool.table_fontsize"),
-  ...
-) {
+rcttable.RCTtoolbox.balance.test <- function(obj,
+                                             treat.label = "Treatments",
+                                             digits = 3,
+                                             title = NULL,
+                                             footnote = NULL,
+                                             size = 12,
+                                             output = "kableExtra",
+                                             ...) {
+  data <- obj$result
+  data <- data[!(data$item %in% c("fstat", "df1", "df2")), ]
+  data$item <- droplevels(data$item)
+
   # number of experimental arms
   numarms <- length(unique(data$item)) - 1
   align <- paste0(c("l", rep("c", numarms + 1)), collapse = "")
@@ -205,12 +195,16 @@ rcttable.balance_test <- function(
     output = output
   )
 
+  header_val <- c(" ", treat.label, " ")
+  header_col <- c(1, numarms, 1)
+
   if (output == "kableExtra") {
+    header <- header_col
+    names(header) <- header_val
+
     tab %>%
       kableExtra::kable_styling(font_size = size, ...) %>%
-      kableExtra::add_header_above(
-        c(" " = 1, "Treatments" = numarms, " " = 1)
-      ) %>%
+      kableExtra::add_header_above(header) %>%
       kableExtra::footnote(
         general_title = "",
         general = footnote,
@@ -221,8 +215,8 @@ rcttable.balance_test <- function(
     tab %>%
       flextable::add_footer_lines(values = footnote) %>%
       flextable::add_header_row(
-        values = c("", "Treatments", ""),
-        colwidths = c(1, numarms, 1)
+        values = header_val,
+        colwidths = header_col
       ) %>%
       flextable::fontsize(size = size, part = "all")
   } else {

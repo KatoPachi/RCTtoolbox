@@ -1,3 +1,86 @@
+#' F-test of Overall Siginificance in Linear Regression
+#'
+#' @param baseline two-sided formula `covariate ~ treat`
+#' @param data data.frame/tibble you want to use
+#' @param treat_levels order of experimental arms
+#' @param ctrl specify control arm if you want change
+#' @param subset subset condition of data
+#' @param weights weight variable
+#' @param cluster cluster variable
+#' @param \dots pass to `estimatr::lm_robust()`
+#'
+#' @importFrom estimatr lm_robust
+#' @importFrom rlang enexpr
+#' @importFrom stats pf
+#' @importFrom stats formula
+#' @importFrom rlang f_lhs
+#' @importFrom rlang f_rhs
+#'
+#'
+balance_test <- function(baseline = NULL,
+                         data = NULL,
+                         treat_levels = NULL,
+                         ctrl = NULL,
+                         subset = NULL,
+                         weights = NULL,
+                         cluster = NULL,
+                         ...) {
+  # data shape
+  use <- clean_RCTdata(
+    baseline,
+    data = data,
+    treat_levels = treat_levels,
+    subset = subset,
+    weights = weights,
+    cluster = cluster
+  )
+
+  # calculate mean value in each arm
+  y <- use$outcome
+  d <- use$design[, -1]
+  w <- use$weights
+
+  ctrl <- as.logical(1 - rowSums(d))
+  mu0 <- wtd_mean(y[ctrl], w[ctrl])
+  mu1 <- apply(d, 2, function(x) {
+    treated <- as.logical(x)
+    wtd_mean(y[treated], w[treated])
+  })
+  mu <- c(mu0, mu1)
+
+  # implement F-test
+  lhs <- all.vars(f_lhs(baseline))
+  rhs <- paste(colnames(d), collapse = "+")
+  model <- formula(paste(lhs, "~", rhs))
+  usedt <- data.frame(cbind(y, d))
+  colnames(usedt) <- c(lhs, colnames(d))
+
+  reg <- estimatr::lm_robust(
+    model,
+    data = usedt,
+    weights = w,
+    clusters = use$cluster,
+    ...
+  )
+
+  fstat <- reg$fstatistic
+  p_fstat <- pf(fstat[1], fstat[2], fstat[3], lower.tail = FALSE)
+
+  # output
+  data.frame(
+    x = all.vars(f_lhs(baseline)),
+    item = c(
+      treat_levels[1],
+      gsub(all.vars(f_rhs(baseline)), "", names(mu1)),
+      "fstat",
+      "df1",
+      "df2",
+      "p-value"
+    ),
+    val = c(mu, fstat[1], fstat[2], fstat[3], p_fstat)
+  )
+}
+
 #' Blance Test by F-test of Overall Significance in Linear Regression
 #'
 #' @description This function performs a balance test of the treatment
@@ -13,78 +96,61 @@
 #'
 #' @return A data frame with `balance_test` class
 #'
-#' @importFrom stats as.formula
 #' @importFrom dplyr bind_rows
 #' @export
 #'
 #' @examples
-#' # DGP
-#' set.seed(120511)
-#' n <- 1000
-#' x1 <- rnorm(n); x2 <- rnorm(n)
-#' d1 <- sample(c("A", "B", "C"), size = n, replace = TRUE)
-#' d2 <- ifelse(d1 == "A", "control", "treat")
-#' ya <- 0.2 + 0.5 * x1 + 0.01 * x2
-#' yb <- 1.2 + 0.3 * x2
-#' yc <- -1 - 0.2 * x1 + 0.5 * x2
-#' y <- ifelse(d1 == "A", ya, ifelse(d1 == "B", yb, yc))
-#' dt <- data.frame(outcome = y, treat = d1, bin_treat = d2, x1, x2)
+#' \dontrun{
+#' data(RubellaNudge)
+#' rct <- create_RCTtoolbox(
+#'   atest + avacc ~ treat,
+#'   ~ age + educ,
+#'   RubellaNudge,
+#'   LETTERS[1:7]
+#' )
 #'
-#' # F-test
-#' set_optRCTtool(outcome ~ treat, ~ x1, dt, "A")
+#' rct$balance(subset = coupon == 1)$result
 #'
-#' balance_test(data = dt)
-#' balance_test(data = subset(dt, treat != "B"))
-#' balance_test(c("x1", "x2"), data = dt)
-#' balance_test(arms = "bin_treat", data = dt)
-#'
-#' set_optRCTtool(xmod = ~ x1 + x2, data = dt)
-#' balance_test(data = dt)
-#'
-#' clear_optRCTtool()
+#' }
 #'
 #'
-balance_test <- function(xlist, arms, data) {
-  # check RCTtool.xlist option
-  if (missing(xlist)) {
-    xlist <- getOption("RCTtool.xlist")
-    if (all(xlist == "")) stop("Not register option('RCTtool.xlist').")
-  }
+balance_test_multi_var <- function(covariate = NULL,
+                                   treat = NULL,
+                                   data = NULL,
+                                   treat_levels = NULL,
+                                   treat_labels = NULL,
+                                   ctrl = NULL,
+                                   subset = NULL,
+                                   weights = NULL,
+                                   cluster = NULL,
+                                   ...) {
+  # order of experimental arms
+  order_d <- reorder_arms(treat_levels, treat_labels, ctrl)
 
-  # check RCTtool.arms option
-  if (missing(arms)) {
-    arms <- getOption("RCTtool.arms")
-    if (arms == "") stop("Not register option('RCTtool.arms')")
-  }
-
-  # check RCTtool.arms_label option
-  if (missing(arms)) {
-    label <- getOption("RCTtool.arms_label")
-    if (all(label == "")) {
-      warning("You should register option('RCTtool.arms_label')")
-      dv <- data[[arms]]
-      if (!is.factor(dv)) dv <- factor(dv)
-      label <- levels(dv)
-    }
-  } else {
-    dv <- data[[arms]]
-    if (!is.factor(dv)) dv <- factor(dv)
-    label <- levels(dv)
-  }
+  # list of model
+  model <- lapply(covariate, function(x) formula(paste(x, "~", treat)))
 
   # implement F-test
-  f <- lapply(xlist, ftest, arms, label, data)
-  f <- dplyr::bind_rows(f)
+  res <- lapply(
+    model,
+    balance_test,
+    data,
+    order_d$levels,
+    ctrl,
+    enexpr(subset),
+    enexpr(weights),
+    enexpr(cluster),
+    ...
+  )
+  res <- bind_rows(res)
 
   # convert factor
-  level <- getOption("RCTtool.arms_level")
-  if (any(!(label %in% level))) {
-    f$item <- factor(f$item, levels = c(label, "P-value (F-test)"))
-  } else {
-    f$item <- factor(f$item, levels = c(level, "P-value (F-test)"))
-  }
+  res$item <- factor(
+    res$item,
+    c(order_d$levels, "fstat", "df1", "df2", "p-value"),
+    c(order_d$labels, "fstat", "df1", "df2", "p-value")
+  )
 
   # output
-  class(f) <- append(class(f), "balance_test")
-  f
+  res
 }

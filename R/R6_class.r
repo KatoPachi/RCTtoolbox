@@ -52,6 +52,16 @@ RCTtoolbox <- R6::R6Class("RCTtoolbox",
         ctrl,
         ...
       )
+    },
+    balance = function(...) {
+      RCTtoolbox.balance.test$new(
+        private$xvec,
+        private$dvec,
+        private$data,
+        private$dvec.levels,
+        private$dvec.labels,
+        ...
+      )
     }
   ),
   private = list(
@@ -106,6 +116,27 @@ RCTtoolbox.power.analysis <- R6::R6Class("RCTtoolbox.power.analysis",
       cat("- table(): Create output table\n")
     },
     summary = function(...) summary(self, ...),
+    table = function(...) rcttable(self, ...)
+  )
+)
+
+RCTtoolbox.balance.test <- R6::R6Class("RCTtoolbox.balance.test",
+  public = list(
+    result = NULL,
+    initialize = function(x, d, data, levels, labels, ...) {
+      self$result <- balance_test_multi_var(
+        x, d, data, levels, labels, ...
+      )
+    },
+    print = function(...) {
+      cat("-- Activate Information ------------------------------\n")
+      cat("Run Balance Test (Class: RCTtoolbox.balance.test) \n")
+      cat("-- Fields and Methods --------------------------------\n")
+      cat("- result: Store estimated result\n")
+      cat("- print(): Show this message\n")
+      cat("- summary(): Print result in console\n")
+      cat("- table(): Create output table\n")
+    },
     table = function(...) rcttable(self, ...)
   )
 )
