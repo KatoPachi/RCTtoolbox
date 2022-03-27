@@ -4,6 +4,7 @@
 #'
 RCTtoolbox <- R6::R6Class("RCTtoolbox",
   public = list(
+    data = NULL,
     initialize = function(formula_yd = NULL,
                           formula_x = NULL,
                           yvec = NULL,
@@ -19,7 +20,7 @@ RCTtoolbox <- R6::R6Class("RCTtoolbox",
       private$dvec <- dvec
       private$dvec.levels <- dvec_levels
       private$dvec.labels <- dvec_labels
-      private$data <- data
+      self$data <- data
     },
     print = function(...) {
       cat("-- Activate Information ---------------------\n")
@@ -37,7 +38,7 @@ RCTtoolbox <- R6::R6Class("RCTtoolbox",
     ttest = function(ctrl = NULL, ...) {
       RCTtoolbox.ttest$new(
         private$formula.yd,
-        private$data,
+        self$data,
         private$dvec.levels,
         private$dvec.labels,
         ctrl,
@@ -47,7 +48,7 @@ RCTtoolbox <- R6::R6Class("RCTtoolbox",
     power = function(ctrl = NULL, ...) {
       RCTtoolbox.power.analysis$new(
         private$dvec,
-        private$data,
+        self$data,
         private$dvec.levels,
         private$dvec.labels,
         ctrl,
@@ -58,7 +59,7 @@ RCTtoolbox <- R6::R6Class("RCTtoolbox",
       RCTtoolbox.balance.test$new(
         private$xvec,
         private$dvec,
-        private$data,
+        self$data,
         private$dvec.levels,
         private$dvec.labels,
         ...
@@ -68,7 +69,7 @@ RCTtoolbox <- R6::R6Class("RCTtoolbox",
       RCTtoolbox.lm$new(
         private$formula.yd,
         private$formula.x,
-        private$data,
+        self$data,
         private$dvec,
         private$dvec.levels,
         private$dvec.labels,
@@ -83,8 +84,7 @@ RCTtoolbox <- R6::R6Class("RCTtoolbox",
     xvec = NULL,
     dvec = NULL,
     dvec.levels = NULL,
-    dvec.labels = NULL,
-    data = NULL
+    dvec.labels = NULL
   )
 )
 
@@ -146,7 +146,6 @@ RCTtoolbox.balance.test <- R6::R6Class("RCTtoolbox.balance.test",
       cat("-- Fields and Methods --------------------------------\n")
       cat("- result: Store estimated result\n")
       cat("- print(): Show this message\n")
-      cat("- summary(): Print result in console\n")
       cat("- table(): Create output table\n")
     },
     table = function(...) rcttable(self, ...)
