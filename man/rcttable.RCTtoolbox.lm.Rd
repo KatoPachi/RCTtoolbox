@@ -15,8 +15,8 @@
   stars = c(`***` = 0.01, `**` = 0.05, `*` = 0.1),
   title = NULL,
   footnote = NULL,
-  output = "kableExtra",
-  size = 12,
+  size = getOption("RCTtoolbox.table_font_size"),
+  output = getOption("RCTtoolbox.table_output"),
   ...
 )
 }
@@ -52,9 +52,9 @@ If \code{stars = FALSE}, no stars are output.}
 
 \item{footnote}{character. Table footnote.}
 
-\item{output}{character. Output format.}
-
 \item{size}{numeric. Font size (default is 15).}
+
+\item{output}{character. Output format.}
 
 \item{\dots}{other arguments passing in kableExtra::kable_styling.}
 

@@ -53,8 +53,8 @@ rctplot <- function(...) {
 #' rct <- create_RCTtoolbox(
 #'   atest + avacc ~ treat,
 #'   data = subset(RubellaNudge, coupon == 1),
-#'   levels = LETTERS[1:7],
-#'   labels = paste("Message", LETTERS[1:7])
+#'   treat_levels = LETTERS[1:7],
+#'   treat_labels = paste("Message", LETTERS[1:7])
 #' )
 #'
 #' rct$ttest()$
@@ -85,6 +85,7 @@ rctplot.RCTtoolbox.ttest <- function(obj,
                                      patchwork = TRUE,
                                      ncol = NULL,
                                      nrow = NULL,
+                                     family = getOption("RCTtoolbox.plot_family"),
                                      ...) {
   # plot data
   pdt <- obj$result %>%
@@ -148,7 +149,7 @@ rctplot.RCTtoolbox.ttest <- function(obj,
       p <- p +
         geom_text(
           aes(y = inplot_lab_pos, label = label),
-          size = inplot_lab_size
+          size = inplot_lab_size, family = family
         )
     }
 
@@ -164,7 +165,7 @@ rctplot.RCTtoolbox.ttest <- function(obj,
 
     if (flip) p <- p + coord_flip()
 
-    p + simplegg(flip = flip, ...)
+    p + simplegg(flip = flip, font_family = family, ...)
   })
 
   # patchwork

@@ -51,15 +51,8 @@ balance_test <- function(baseline = NULL,
   mu <- c(mu0, mu1)
 
   # implement F-test
-  lhs <- all.vars(f_lhs(baseline))
-  rhs <- paste(colnames(d), collapse = "+")
-  model <- formula(paste(lhs, "~", rhs))
-  usedt <- data.frame(cbind(y, d))
-  colnames(usedt) <- c(lhs, colnames(d))
-
   reg <- estimatr::lm_robust(
-    model,
-    data = usedt,
+    y ~ 1 + d,
     weights = w,
     clusters = use$cluster,
     ...

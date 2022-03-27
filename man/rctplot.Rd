@@ -22,6 +22,7 @@ rctplot(...)
   patchwork = TRUE,
   ncol = NULL,
   nrow = NULL,
+  family = getOption("RCTtoolbox.plot_family"),
   ...
 )
 }

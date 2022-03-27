@@ -12,8 +12,8 @@
   target.label = "Mean Difference",
   title = NULL,
   footnote = NULL,
-  size = 12,
-  output = "kableExtra",
+  size = getOption("RCTtoolbox.table_font_size"),
+  output = getOption("RCTtoolbox.table_output"),
   ...
 )
 }

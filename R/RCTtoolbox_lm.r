@@ -67,17 +67,13 @@ rct_lm <- function(baseline = NULL,
       enexpr(cluster)
     )
 
-    # model and data (for arguments lm_robust)
-    lhs <- all.vars(f_lhs(baseline))
-    rhs <- paste(colnames(use$design[, -1]), collapse = "+")
-    model <- formula(paste(lhs, "~", rhs))
-    usedt <- data.frame(cbind(use$outcome, use$design[, -1]))
-    colnames(usedt) <- c(lhs, colnames(use$design[, -1]))
 
     # estimation
+    assign(all.vars(f_lhs(baseline)), use$outcome)
+    x <- use$design
+
     estimatr::lm_robust(
-      model,
-      usedt,
+      formula(paste(all.vars(f_lhs(baseline)), "~ -1 + x")),
       weights = use$weights,
       clusters = use$clusters,
       ...

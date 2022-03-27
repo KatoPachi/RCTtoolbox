@@ -80,8 +80,8 @@ rcttable.RCTtoolbox.power.analysis <- function(obj,
                                                target.label = "Mean Difference",
                                                title = NULL,
                                                footnote = NULL,
-                                               size = 12,
-                                               output = "kableExtra",
+                                               size = getOption("RCTtoolbox.table_font_size"),
+                                               output = getOption("RCTtoolbox.table_output"),
                                                ...) {
   # shape passed data
   data <- obj$result
@@ -173,8 +173,8 @@ rcttable.RCTtoolbox.balance.test <- function(obj,
                                              digits = 3,
                                              title = NULL,
                                              footnote = NULL,
-                                             size = 12,
-                                             output = "kableExtra",
+                                             size = getOption("RCTtoolbox.table_font_size"),
+                                             output = getOption("RCTtoolbox.table_output"),
                                              ...) {
   data <- obj$result
   data <- data[!(data$item %in% c("fstat", "df1", "df2")), ]
@@ -301,13 +301,13 @@ rcttable.RCTtoolbox.lm <- function(object,
                                      c("***" = .01, "**" = .05, "*" = .1),
                                    title = NULL,
                                    footnote = NULL,
-                                   output = "kableExtra",
-                                   size = 12,
+                                   size = getOption("RCTtoolbox.table_font_size"),
+                                   output = getOption("RCTtoolbox.table_output"),
                                    ...) {
   res <- object$result
 
   # Step1: Header of Outcome Labels
-  yvec <- unlist(lapply(res, function(x) all.vars(f_lhs(formula(x$terms)))))
+  yvec <- unlist(lapply(res, function(x) unique(tidy(x)$outcome)))
   ylab <- c(1, rle(yvec)$length)
   names(ylab) <- c(" ", rle(yvec)$values)
   if (!is.null(outcome_map)) {
@@ -322,8 +322,9 @@ rcttable.RCTtoolbox.lm <- function(object,
   # Step2: create coefficient mapping
   # covariate list
   xvec <- lapply(res, function(x) {
-    v <- all.vars(f_rhs(formula(x$terms)))
-    v[-grep(dvar, v)]
+    v <- tidy(x)$term
+    v <- v[-grep(dvar, v)]
+    v <- v[-grep("Intercept", v)]
   })
   tab <- data.frame(x = unique(unlist(xvec)))
 
@@ -337,6 +338,7 @@ rcttable.RCTtoolbox.lm <- function(object,
 
   # remove covariates if coef_map includes
   "%out%" <- Negate("%in%")
+  tab$x <- substr(tab$x, 2, nchar(tab$x))
   tab <- subset(tab, x %out% names(add_coef_map))
 
   # create flag whether it can be grouped
@@ -370,13 +372,16 @@ rcttable.RCTtoolbox.lm <- function(object,
 
   # create coef_map
   dvec <- lapply(res, function(x) {
-    v <- all.vars(f_rhs(formula(x$terms)))
+    v <- tidy(x)$term
     v[grep(dvar, v)]
   })
   dvec <- unique(unlist(dvec))
 
-  coef_map <- gsub(dvar, "", dvec)
+  coef_map <- gsub(paste0("x", dvar), "", dvec)
   names(coef_map) <- dvec
+  if (!is.null(add_coef_map)) {
+    names(add_coef_map) <- paste0("x", names(add_coef_map))
+  }
   coef_map <- c(coef_map, add_coef_map)
 
   for (i in seq_len(ncol(tab) - 1)) {
