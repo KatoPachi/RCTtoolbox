@@ -82,16 +82,15 @@ ttest_power <- function(n0,
 #' the square root of the mean of variances of specified variable
 #' of the two group is the standard deviation.
 #'
-#' @param arms A string of treatment variables
-#' If missing, try to find from `options("RCTtool.arms")`.
-#' @param ctrl a string of the control.
-#' If missing, try to find from `options("RCTtool.control")`.
+#' @param treat A string of treatment variables
 #' @param data data which you want to use.
-#' @param std_dev numeric (default is 1).
+#' @param treat_levels original level of treatment arms.
+#' The first level is control arm.
+#' @param treat_labels label of treatment arms corresponding to original level.
+#' @param ctrl new control arm.
+#' @param subset subset condition.
+#' @param sd numeric (default is 1).
 #' The standard deviation used when calculating the mean difference.
-#' If `std_dev` is numeric, then specified value is used to calculate.
-#' If `std_dev` is string, calculate standard deviation of specified variable
-#' and use it to calculate.
 #' @param \dots some arguments passing in `ttest_power`.
 #' You can pass `d` (effect size), `alpha` (significant level), and
 #' `power` (power).
@@ -99,6 +98,7 @@ ttest_power <- function(n0,
 #' @importFrom dplyr bind_rows
 #' @importFrom stats model.frame
 #' @importFrom stats model.matrix
+#' @importFrom stats formula
 #' @importFrom rlang enquo
 #' @importFrom rlang eval_tidy
 #'
@@ -125,7 +125,7 @@ power_calculation <- function(treat = NULL,
                               ...) {
   # clean data
   order_d <- reorder_arms(treat_levels, treat_labels, ctrl)
-  model <- as.formula(paste("~", treat))
+  model <- formula(paste("~", treat))
   clean <- clean_RCTdata(
     model,
     data = data,

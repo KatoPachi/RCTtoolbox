@@ -6,6 +6,11 @@
 \usage{
 \method{summary}{RCTtoolbox.lm}(object, ...)
 }
+\arguments{
+\item{object}{an object for which a summary is desired.}
+
+\item{...}{additional arguments affecting the summary produced.}
+}
 \description{
 Summary of linear model
 }

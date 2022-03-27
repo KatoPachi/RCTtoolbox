@@ -22,6 +22,12 @@ ttest_multi_mod_arm(
 
 \item{data}{data.frame/tibble object you want to use.}
 
+\item{treat_levels}{order of experimental arms}
+
+\item{treat_labels}{labels of experimental arms}
+
+\item{ctrl}{specify control arm if you want change}
+
 \item{subset}{subset condition.}
 
 \item{weights}{weight variable.}

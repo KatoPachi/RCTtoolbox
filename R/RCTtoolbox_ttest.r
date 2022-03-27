@@ -154,6 +154,8 @@ ttest <- function(y1,
 #'
 #' @param baseline formula. `outcome ~ treatment`.
 #' @param data data.frame/tibble object you want to use.
+#' @param treat_levels order of experimental arms
+#' @param treat_labels labels of experimental arms
 #' @param subset subset condition.
 #' @param weights weight variable.
 #' @param bootse numeric. Number of bootstrap sample to calculate se.
@@ -226,6 +228,9 @@ ttest_multi_arm <- function(baseline = NULL,
 #'
 #' @param baseline (list of) baseline formulas. `outcome ~ treatment`.
 #' @param data data.frame/tibble object you want to use.
+#' @param treat_levels order of experimental arms
+#' @param treat_labels labels of experimental arms
+#' @param ctrl specify control arm if you want change
 #' @param subset subset condition.
 #' @param weights weight variable.
 #' @param bootse numeric. Number of bootstrap sample to calculate se.

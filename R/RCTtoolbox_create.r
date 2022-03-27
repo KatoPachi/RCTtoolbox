@@ -10,10 +10,9 @@
 #' @param covariate (list of) one-sided formulas with
 #' covariates used in regression and balance test on RHS.
 #' @param data data.frame/tibble object you want to use.
-#' @param levels character vector of levels of experimental arms.
+#' @param treat_levels character vector of levels of experimental arms.
 #' The first element must be control.
-#' @param labels character vector of labels of experimental arms.
-#' @param \dots other arguments
+#' @param treat_labels character vector of labels of experimental arms.
 #'
 #' @importFrom rlang f_lhs
 #' @importFrom rlang f_rhs

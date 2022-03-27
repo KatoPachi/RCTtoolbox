@@ -4,7 +4,7 @@
 \alias{rcttable.RCTtoolbox.balance.test}
 \title{Output Table for Balance Test}
 \usage{
-\method{rcttable}{RCTtoolobox.balance.test}(
+\method{rcttable}{RCTtoolbox.balance.test}(
   obj,
   treat.label = "Treatments",
   digits = 3,
@@ -16,6 +16,8 @@
 )
 }
 \arguments{
+\item{obj}{object with R6 class "RCTtoolbox.balance.test"}
+
 \item{treat.label}{character. Label of treatment column.}
 
 \item{digits}{numeric.
@@ -30,8 +32,6 @@ Specify the number of decimal places to display (Default is 3).}
 \item{output}{character. Output format.}
 
 \item{\dots}{Other arguments to pass to \code{kableExtra::kable_styling}}
-
-\item{data}{data.frame with class "balance_test"}
 }
 \description{
 This function outputs

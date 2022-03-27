@@ -54,6 +54,18 @@ by the least squares method of the \code{lm_robust} function
 in the {estimatr} package.
 }
 \examples{
+\dontrun{
+data(RubellaNudge)
+rct <- create_RCTtoolbox(
+  atest + avacc ~ treat,
+  ~ age + educ,
+  RubellaNudge,
+  LETTERS[1:7]
+)
+
+rct$lm(subset = coupon == 1)$summary()
+
+}
 
 
 }

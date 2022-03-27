@@ -22,6 +22,10 @@ clean_RCTdata(
 
 \item{data}{data.frame/tibble object you want to use.}
 
+\item{treat_levels}{order of experimental arms}
+
+\item{treat_labels}{labels of experimental arms}
+
 \item{subset}{subset condition.}
 
 \item{weights}{weight variable.}

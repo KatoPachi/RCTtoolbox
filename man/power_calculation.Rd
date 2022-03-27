@@ -16,23 +16,25 @@ power_calculation(
 )
 }
 \arguments{
+\item{treat}{A string of treatment variables}
+
 \item{data}{data which you want to use.}
 
-\item{ctrl}{a string of the control.
-If missing, try to find from \code{options("RCTtool.control")}.}
+\item{treat_levels}{original level of treatment arms.
+The first level is control arm.}
+
+\item{treat_labels}{label of treatment arms corresponding to original level.}
+
+\item{ctrl}{new control arm.}
+
+\item{subset}{subset condition.}
+
+\item{sd}{numeric (default is 1).
+The standard deviation used when calculating the mean difference.}
 
 \item{\dots}{some arguments passing in \code{ttest_power}.
 You can pass \code{d} (effect size), \code{alpha} (significant level), and
 \code{power} (power).}
-
-\item{arms}{A string of treatment variables
-If missing, try to find from \code{options("RCTtool.arms")}.}
-
-\item{std_dev}{numeric (default is 1).
-The standard deviation used when calculating the mean difference.
-If \code{std_dev} is numeric, then specified value is used to calculate.
-If \code{std_dev} is string, calculate standard deviation of specified variable
-and use it to calculate.}
 }
 \description{
 This function performs a two-sided t-test power analysis

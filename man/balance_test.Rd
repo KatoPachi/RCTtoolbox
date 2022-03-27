@@ -23,6 +23,8 @@ balance_test(
 
 \item{treat_levels}{order of experimental arms}
 
+\item{treat_labels}{labels of experimental arms}
+
 \item{ctrl}{specify control arm if you want change}
 
 \item{subset}{subset condition of data}

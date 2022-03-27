@@ -3,6 +3,7 @@
 #' @param baseline two-sided formula `covariate ~ treat`
 #' @param data data.frame/tibble you want to use
 #' @param treat_levels order of experimental arms
+#' @param treat_labels labels of experimental arms
 #' @param ctrl specify control arm if you want change
 #' @param subset subset condition of data
 #' @param weights weight variable
@@ -83,11 +84,16 @@ balance_test <- function(baseline = NULL,
 #' The balance test calculates the mean of each group
 #' and the F-test by linear regression analysis.
 #'
-#' @param xlist string vector with covariates.
-#' If missing, try to find form `option("RCTtool.xlist")`
-#' @param arms string of treatment variables.
-#' If missing, try to find from `option("RCTtool.arms")`
-#' @param data data which you want to use.
+#' @param covariate character vector of covariates
+#' @param treat character of variable name of experimental arm
+#' @param data data.frame/tibble you want to use
+#' @param treat_levels order of experimental arms
+#' @param treat_labels labels of experimental arms
+#' @param ctrl specify control arm if you want change
+#' @param subset subset condition of data
+#' @param weights weight variable
+#' @param cluster cluster variable
+#' @param \dots pass to `estimatr::lm_robust()`
 #'
 #' @return A data frame with `balance_test` class
 #'

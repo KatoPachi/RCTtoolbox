@@ -27,6 +27,18 @@
 #' @importFrom stats formula
 #' @importFrom rlang f_lhs
 #' @examples
+#' \dontrun{
+#' data(RubellaNudge)
+#' rct <- create_RCTtoolbox(
+#'   atest + avacc ~ treat,
+#'   ~ age + educ,
+#'   RubellaNudge,
+#'   LETTERS[1:7]
+#' )
+#'
+#' rct$lm(subset = coupon == 1)$summary()
+#'
+#' }
 #'
 #'
 rct_lm <- function(baseline = NULL,

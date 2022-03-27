@@ -133,7 +133,7 @@ rcttable.RCTtoolbox.power.analysis <- function(obj,
 #' `rcttable.power_analysis` supports "kableExtra" (for PDF and HTML output),
 #' "flextable" (MS Word and MS Powerpoint), and "data.frame".
 #'
-#' @param data data.frame with class "balance_test"
+#' @param obj object with R6 class "RCTtoolbox.balance.test"
 #' @param treat.label character. Label of treatment column.
 #' @param digits numeric.
 #' Specify the number of decimal places to display (Default is 3).
@@ -152,7 +152,7 @@ rcttable.RCTtoolbox.power.analysis <- function(obj,
 #' @importFrom flextable add_header_row
 #' @importFrom flextable fontsize
 #'
-#' @method rcttable RCTtoolobox.balance.test
+#' @method rcttable RCTtoolbox.balance.test
 #'
 #' @examples
 #' \dontrun{
@@ -227,8 +227,9 @@ rcttable.RCTtoolbox.balance.test <- function(obj,
 
 #' Output Table for Regression Analaysis
 #'
-#' @param object object with RCT_OLS class.
-#' @param coef_map character vector with name.
+#' @param object object with R6 class "RCTtoolbox.lm"
+#' @param dvar string of variable name of experimental arms.
+#' @param add_coef_map character vector with name.
 #' Specify `c("Original variable" = "label", ...)`.
 #' @param outcome_map character vector with name.
 #' Specify `c("Original variable" = "label", ...)`.
@@ -264,6 +265,7 @@ rcttable.RCTtoolbox.balance.test <- function(obj,
 #' @importFrom flextable add_footer_lines
 #' @importFrom flextable add_header_row
 #' @importFrom flextable fontsize
+#' @importFrom broom tidy
 #'
 #' @method rcttable RCTtoolbox.lm
 #'

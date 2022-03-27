@@ -18,13 +18,25 @@ balance_test_multi_var(
 )
 }
 \arguments{
-\item{data}{data which you want to use.}
+\item{covariate}{character vector of covariates}
 
-\item{xlist}{string vector with covariates.
-If missing, try to find form \code{option("RCTtool.xlist")}}
+\item{treat}{character of variable name of experimental arm}
 
-\item{arms}{string of treatment variables.
-If missing, try to find from \code{option("RCTtool.arms")}}
+\item{data}{data.frame/tibble you want to use}
+
+\item{treat_levels}{order of experimental arms}
+
+\item{treat_labels}{labels of experimental arms}
+
+\item{ctrl}{specify control arm if you want change}
+
+\item{subset}{subset condition of data}
+
+\item{weights}{weight variable}
+
+\item{cluster}{cluster variable}
+
+\item{\dots}{pass to \code{estimatr::lm_robust()}}
 }
 \value{
 A data frame with \code{balance_test} class

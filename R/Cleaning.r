@@ -3,6 +3,8 @@
 #' @param baseline formula. `outcome ~ treatment`.
 #' @param covariate one-sided formula. `. ~ . + x1 + x2`.
 #' @param data data.frame/tibble object you want to use.
+#' @param treat_levels order of experimental arms
+#' @param treat_labels labels of experimental arms
 #' @param subset subset condition.
 #' @param weights weight variable.
 #' @param cluster cluster variable.

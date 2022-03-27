@@ -21,12 +21,10 @@ covariates used in regression and balance test on RHS.}
 
 \item{data}{data.frame/tibble object you want to use.}
 
-\item{levels}{character vector of levels of experimental arms.
+\item{treat_levels}{character vector of levels of experimental arms.
 The first element must be control.}
 
-\item{labels}{character vector of labels of experimental arms.}
-
-\item{\dots}{other arguments}
+\item{treat_labels}{character vector of labels of experimental arms.}
 }
 \description{
 Create an R6 class object called "RCT toolbox"

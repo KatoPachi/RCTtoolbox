@@ -3,6 +3,7 @@
 #'
 #' @method summary RCTtoolbox.ttest
 #' @importFrom stats printCoefmat
+#' @inheritParams base::summary
 #'
 summary.RCTtoolbox.ttest <- function(object, ...) {
   res <- object$result
@@ -31,6 +32,7 @@ summary.RCTtoolbox.ttest <- function(object, ...) {
 #'
 #' @method summary RCTtoolbox.power.analysis
 #' @importFrom stats printCoefmat
+#' @inheritParams base::summary
 #'
 #'
 summary.RCTtoolbox.power.analysis <- function(object, ...) {
@@ -57,7 +59,7 @@ summary.RCTtoolbox.power.analysis <- function(object, ...) {
 #' Summary of linear model
 #'
 #' @method summary RCTtoolbox.lm
-#'
+#' @inheritParams base::summary
 #'
 summary.RCTtoolbox.lm <- function(object, ...) {
   lapply(object$result, summary, ...)

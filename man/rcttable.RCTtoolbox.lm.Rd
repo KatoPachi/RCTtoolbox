@@ -21,7 +21,12 @@
 )
 }
 \arguments{
-\item{object}{object with RCT_OLS class.}
+\item{object}{object with R6 class "RCTtoolbox.lm"}
+
+\item{dvar}{string of variable name of experimental arms.}
+
+\item{add_coef_map}{character vector with name.
+Specify \code{c("Original variable" = "label", ...)}.}
 
 \item{outcome_map}{character vector with name.
 Specify \code{c("Original variable" = "label", ...)}.}
@@ -57,9 +62,6 @@ If \code{stars = FALSE}, no stars are output.}
 \item{output}{character. Output format.}
 
 \item{\dots}{other arguments passing in kableExtra::kable_styling.}
-
-\item{coef_map}{character vector with name.
-Specify \code{c("Original variable" = "label", ...)}.}
 }
 \description{
 Output Table for Regression Analaysis

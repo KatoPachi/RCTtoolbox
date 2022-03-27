@@ -26,6 +26,7 @@ rctplot <- function(...) {
 #' (Use `patchwork::wrap_plots`?)
 #' @param ncol numeric. dimensions of the grid to create.
 #' @param nrow numeric. dimensions of the grid to create.
+#' @param family string of font family.
 #' @param \dots arguments of [simplegg()]
 #'
 #' @importFrom dplyr mutate
@@ -87,6 +88,7 @@ rctplot.RCTtoolbox.ttest <- function(obj,
                                      nrow = NULL,
                                      family = getOption("RCTtoolbox.plot_family"),
                                      ...) {
+  mean1 <- se1 <- arms <- ymin <- ymax <- label <- NULL
   # plot data
   pdt <- obj$result %>%
     mutate(pstar = case_when(

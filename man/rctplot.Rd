@@ -61,6 +61,8 @@ whether to add a list of plots into one composition?
 \item{ncol}{numeric. dimensions of the grid to create.}
 
 \item{nrow}{numeric. dimensions of the grid to create.}
+
+\item{family}{string of font family.}
 }
 \description{
 Visualization of RCTtoolbox
@@ -71,8 +73,8 @@ data(RubellaNudge)
 rct <- create_RCTtoolbox(
   atest + avacc ~ treat,
   data = subset(RubellaNudge, coupon == 1),
-  levels = LETTERS[1:7],
-  labels = paste("Message", LETTERS[1:7])
+  treat_levels = LETTERS[1:7],
+  treat_labels = paste("Message", LETTERS[1:7])
 )
 
 rct$ttest()$
