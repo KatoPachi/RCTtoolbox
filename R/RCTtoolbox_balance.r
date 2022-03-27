@@ -20,6 +20,7 @@
 balance_test <- function(baseline = NULL,
                          data = NULL,
                          treat_levels = NULL,
+                         treat_labels = NULL,
                          ctrl = NULL,
                          subset = NULL,
                          weights = NULL,
@@ -30,6 +31,7 @@ balance_test <- function(baseline = NULL,
     baseline,
     data = data,
     treat_levels = treat_levels,
+    treat_labels = treat_labels,
     subset = subset,
     weights = weights,
     cluster = cluster
@@ -70,7 +72,7 @@ balance_test <- function(baseline = NULL,
   data.frame(
     x = all.vars(f_lhs(baseline)),
     item = c(
-      treat_levels[1],
+      treat_labels[1],
       gsub(all.vars(f_rhs(baseline)), "", names(mu1)),
       "fstat",
       "df1",
@@ -135,6 +137,7 @@ balance_test_multi_var <- function(covariate = NULL,
     balance_test,
     data,
     order_d$levels,
+    order_d$labels,
     ctrl,
     enexpr(subset),
     enexpr(weights),
@@ -146,7 +149,6 @@ balance_test_multi_var <- function(covariate = NULL,
   # convert factor
   res$item <- factor(
     res$item,
-    c(order_d$levels, "fstat", "df1", "df2", "p-value"),
     c(order_d$labels, "fstat", "df1", "df2", "p-value")
   )
 

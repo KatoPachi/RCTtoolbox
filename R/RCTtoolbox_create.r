@@ -43,7 +43,7 @@ create_RCTtoolbox <- function(baseline = NULL,
   if (is.null(data)) abort_empty("data")
   if (is.null(treat_levels)) abort_empty("treat_levels")
   if (length(treat_levels) != length(treat_labels)) {
-    abort_length("`label`", length(treat_levels), length(treat_labels))
+    abort_length("`label`", length(treat_levels), treat_labels)
   }
 
   # parse baseline

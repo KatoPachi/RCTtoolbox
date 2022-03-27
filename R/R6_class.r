@@ -32,6 +32,7 @@ RCTtoolbox <- R6::R6Class("RCTtoolbox",
       cat("- print(): Show this message\n")
       cat("- ttest(): Run t-test\n")
       cat("- power(): Run power analysis\n")
+      cat("- lm(): Estimate linear model\n")
     },
     ttest = function(ctrl = NULL, ...) {
       RCTtoolbox.ttest$new(

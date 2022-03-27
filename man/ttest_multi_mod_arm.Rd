@@ -49,7 +49,7 @@ data(RubellaNudge)
 rct <- create_RCTtoolbox(
   atest + avacc ~ treat,
   data = subset(RubellaNudge, coupon == 1),
-  ctrl = "A"
+  treat_levels = LETTERS[1:7]
 )
 rct$ttest()$summary()
 rct$ttest(ctrl = "C", bootp = 50)$summary()

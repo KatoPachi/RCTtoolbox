@@ -8,6 +8,7 @@ balance_test(
   baseline = NULL,
   data = NULL,
   treat_levels = NULL,
+  treat_labels = NULL,
   ctrl = NULL,
   subset = NULL,
   weights = NULL,

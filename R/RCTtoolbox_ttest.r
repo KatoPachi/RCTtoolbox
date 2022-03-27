@@ -182,7 +182,8 @@ ttest_multi_arm <- function(baseline = NULL,
     data = data,
     subset = subset,
     weights = weights,
-    treat_levels = treat_levels
+    treat_levels = treat_levels,
+    treat_labels = treat_labels,
   )
 
   # outcome, treatment, and weight vector
@@ -195,7 +196,7 @@ ttest_multi_arm <- function(baseline = NULL,
   y0 <- y[ctrl]
   w0 <- w[ctrl]
   res1 <- ttest(y0, y0, w0, w0, bootse, bootp, seed)
-  res1$arms <- treat_levels[1]
+  res1$arms <- treat_labels[1]
 
   # run t-test
   res2 <- apply(d, 2, function(x) {
@@ -210,7 +211,7 @@ ttest_multi_arm <- function(baseline = NULL,
 
   bind_res <- bind_rows(res1, bind_res2)
   bind_res$outcome <- all.vars(f_lhs(baseline))
-  bind_res$arms <- factor(bind_res$arms, treat_levels, treat_labels)
+  bind_res$arms <- factor(bind_res$arms, treat_labels)
   bind_res
 }
 
@@ -243,7 +244,7 @@ ttest_multi_arm <- function(baseline = NULL,
 #' rct <- create_RCTtoolbox(
 #'   atest + avacc ~ treat,
 #'   data = subset(RubellaNudge, coupon == 1),
-#'   ctrl = "A"
+#'   treat_levels = LETTERS[1:7]
 #' )
 #' rct$ttest()$summary()
 #' rct$ttest(ctrl = "C", bootp = 50)$summary()

@@ -130,6 +130,7 @@ power_calculation <- function(treat = NULL,
     model,
     data = data,
     treat_levels = order_d$levels,
+    treat_labels = order_d$labels,
     subset = enexpr(subset)
   )
   use <- clean$design[, -1]
@@ -155,13 +156,13 @@ power_calculation <- function(treat = NULL,
     data.frame(
       n0 = pass_ttest_power$n0,
       n1 = pass_ttest_power$n0,
-      arms = order_d$levels[1]
+      arms = order_d$labels[1]
     ),
     out
   )
 
   # convert character of treatment to factor
-  out$arms <- factor(out$arms, order_d$levels, order_d$labels)
+  out$arms <- factor(out$arms, order_d$labels)
 
   # output
   out
