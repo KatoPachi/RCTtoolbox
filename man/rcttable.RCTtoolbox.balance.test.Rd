@@ -16,6 +16,8 @@
 )
 }
 \arguments{
+\item{treat.label}{character. Label of treatment column.}
+
 \item{digits}{numeric.
 Specify the number of decimal places to display (Default is 3).}
 

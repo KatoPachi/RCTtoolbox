@@ -265,64 +265,49 @@ rcttable.RCTtoolbox.balance.test <- function(obj,
 #' @importFrom flextable add_header_row
 #' @importFrom flextable fontsize
 #'
-#' @method rcttable RCT_OLS
+#' @method rcttable RCTtoolbox.lm
 #'
 #'
 #' @examples
-#' # DGP
-#' set.seed(120511)
-#' n <- 1000
-#' x1 <- rnorm(n); x2 <- rnorm(n)
-#' d1 <- sample(c("A", "B", "C"), size = n, replace = TRUE)
-#' d2 <- ifelse(d1 == "A", "control", "treat")
-#' ya <- 0.2 + 0.5 * x1 + 0.01 * x2
-#' yb <- 1.2 + 0.3 * x2
-#' yc <- 0.2 * x1 + 0.5 * x2
-#' y1 <- ifelse(d1 == "A", ya, ifelse(d1 == "B", yb, yc))
-#' y2 <- ifelse(y1 > 1, 1, 0)
-#' dt <- data.frame(
-#'   outcome = y1,
-#'   binary = y2,
-#'   treat = d1,
-#'   bin_treat = d2,
-#'   x1,
-#'   x2
+#' \dontrun{
+#' data(RubellaNudge)
+#' rct <- create_RCTtoolbox(
+#'   atest + avacc ~ treat,
+#'   list(~age, ~ age + educ),
+#'   RubellaNudge,
+#'   LETTERS[1:7],
+#'   letters[1:7]
 #' )
 #'
-#' # Linear regression
-#' set_optRCTtool(outcome + binary ~ treat, list(~ x1 + x2), dt, "A")
-#' est <- rct_lm(data = dt)
-#' rcttable(
-#'   est,
-#'   outcome_map = c(
-#'     "binary" = "Simulated outcome > 0",
-#'     "outcome" = "Simulated outcome"
-#'   ),
-#'   coef_map = c("treatB" = "State B", "treatC" = "State C"),
-#'   not_show_x = list("Covariates" = c("x1", "x2"))
-#' )
+#' rct$
+#'   lm(subset = coupon == 1)$
+#'   est$table(
+#'     add_coef_map = c("age" = "Age"),
+#'     outcome_map = c("atest" = "Test", "avacc" = "Vaccination"),
+#'     not_show_x = list(Covariates = c("educ")),
+#'     digits = 4,
+#'     keep_gof = "Num.Obs.|R2"
+#'   )
+#' }
 #'
-#' # Linear regression 2
-#' set_optRCTtool(outcome ~ treat, list(~x1, ~x2, ~ x1 + x2), dt, "A")
-#' est <- rct_lm(data = dt)
-#' rcttable(
-#'   est,
-#'   coef_map = c("treatB" = "State B", "treatC" = "State C"),
-#'   not_show_x = list("Covariates" = c("x1", "x2"))
-#' )
-#'
-rcttable.RCT_OLS <- function(
-  object, coef_map,
-  outcome_map = NULL, not_show_x = NULL,
-  keep_gof = "Num.Obs.|R2|R2 Adj.",
-  digits = 3,
-  stars = c("***" = .01, "**" = .05, "*" = .1),
-  title = NULL, footnote = NULL,
-  output = "kableExtra", size = getOption("RCTtool.table_fontsize"),
-  ...
-) {
+rcttable.RCTtoolbox.lm <- function(object,
+                                   dvar,
+                                   add_coef_map = NULL,
+                                   outcome_map = NULL,
+                                   not_show_x = NULL,
+                                   keep_gof = "Num.Obs.|R2|R2 Adj.",
+                                   digits = 3,
+                                   stars =
+                                     c("***" = .01, "**" = .05, "*" = .1),
+                                   title = NULL,
+                                   footnote = NULL,
+                                   output = "kableExtra",
+                                   size = 12,
+                                   ...) {
+  res <- object$result
+
   # Step1: Header of Outcome Labels
-  yvec <- unlist(lapply(object$model, function(x) all.vars(x)[1]))
+  yvec <- unlist(lapply(res, function(x) all.vars(f_lhs(formula(x$terms)))))
   ylab <- c(1, rle(yvec)$length)
   names(ylab) <- c(" ", rle(yvec)$values)
   if (!is.null(outcome_map)) {
@@ -334,9 +319,12 @@ rcttable.RCT_OLS <- function(
     }
   }
 
-  # Step2: create add_rows about missing covariates
+  # Step2: create coefficient mapping
   # covariate list
-  xvec <- lapply(object$model, function(x) all.vars(x)[- (1:2)])
+  xvec <- lapply(res, function(x) {
+    v <- all.vars(f_rhs(formula(x$terms)))
+    v[-grep(dvar, v)]
+  })
   tab <- data.frame(x = unique(unlist(xvec)))
 
   # which covariates each model includes
@@ -349,14 +337,14 @@ rcttable.RCT_OLS <- function(
 
   # remove covariates if coef_map includes
   "%out%" <- Negate("%in%")
-  tab <- subset(tab, x %out% coef_map)
+  tab <- subset(tab, x %out% names(add_coef_map))
 
   # create flag whether it can be grouped
   x <- NULL
   if (!is.null(not_show_x)) {
     flag <- NULL
     for (i in seq_len(length(not_show_x))) {
-      if (sum(not_show_x[[i]] %in% names(coef_map)) > 0) {
+      if (sum(not_show_x[[i]] %in% names(add_coef_map)) > 0) {
         flag[i] <- 0
       } else {
         ctrl <- apply(subset(tab, x %in% not_show_x[[i]])[, -1], 2, sum)
@@ -380,24 +368,36 @@ rcttable.RCT_OLS <- function(
     }
   }
 
+  # create coef_map
+  dvec <- lapply(res, function(x) {
+    v <- all.vars(f_rhs(formula(x$terms)))
+    v[grep(dvar, v)]
+  })
+  dvec <- unique(unlist(dvec))
+
+  coef_map <- gsub(dvar, "", dvec)
+  names(coef_map) <- dvec
+  coef_map <- c(coef_map, add_coef_map)
+
   for (i in seq_len(ncol(tab) - 1)) {
     tab[, 1 + i] <- ifelse(tab[, 1 + i] == 1, "X", "")
   }
 
   # Step 3: Set model names and align
-  names(object$res) <- paste0("(", seq_len(length(object$res)), ")")
-  align <- paste0(c("l", rep("c", length(object$res))), collapse = "")
+  names(res) <- paste0("(", seq_len(length(res)), ")")
+  align <- paste0(c("l", rep("c", length(res))), collapse = "")
 
   # Step 4: basic output
   tab <- modelsummary::modelsummary(
-    object$res,
+    res,
     coef_map = coef_map,
     gof_omit = paste0("[^", keep_gof, "]"),
     stars = stars,
     align = align,
     add_rows = tab,
     title = title,
-    output = output
+    output = output,
+    fmt = digits
   )
   # Step 5: additional options for kabelExtra and flextable
   if (output == "kableExtra") {

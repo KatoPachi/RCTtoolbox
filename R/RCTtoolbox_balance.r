@@ -97,7 +97,6 @@ balance_test <- function(baseline = NULL,
 #' @return A data frame with `balance_test` class
 #'
 #' @importFrom dplyr bind_rows
-#' @export
 #'
 #' @examples
 #' \dontrun{

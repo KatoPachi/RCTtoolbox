@@ -62,6 +62,17 @@ RCTtoolbox <- R6::R6Class("RCTtoolbox",
         private$dvec.labels,
         ...
       )
+    },
+    lm = function(...) {
+      RCTtoolbox.lm$new(
+        private$formula.yd,
+        private$formula.x,
+        private$data,
+        private$dvec,
+        private$dvec.levels,
+        private$dvec.labels,
+        ...
+      )
     }
   ),
   private = list(
@@ -139,4 +150,28 @@ RCTtoolbox.balance.test <- R6::R6Class("RCTtoolbox.balance.test",
     },
     table = function(...) rcttable(self, ...)
   )
+)
+
+RCTtoolbox.lm <- R6::R6Class("RCTtoolbox.lm",
+  public = list(
+    result = NULL,
+    initialize = function(yd, x, data, dvec, levels, labels, ...) {
+      self$result <- rct_lm(
+        yd, x, data, levels, labels, ...
+      )
+      private$dvar <- dvec
+    },
+    print = function(...) {
+      cat("-- Activate Information ------------------------------\n")
+      cat("Estimate Linear Model (Class: RCTtoolbox.lm) \n")
+      cat("-- Fields and Methods --------------------------------\n")
+      cat("- result: Store estimated result\n")
+      cat("- print(): Show this message\n")
+      cat("- summary(): Print result in console\n")
+      cat("- table(): Create output table\n")
+    },
+    summary = function(...) summary(self, ...),
+    table = function(...) rcttable(self, private$dvar, ...)
+  ),
+  private = list(dvar = NULL)
 )

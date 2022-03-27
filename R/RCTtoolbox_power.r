@@ -23,6 +23,8 @@
 #' @importFrom stats qt
 #' @importFrom stats uniroot
 #'
+#' @export
+#'
 #'
 ttest_power <- function(n0,
                         n1,

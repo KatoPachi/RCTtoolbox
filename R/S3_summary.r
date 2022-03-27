@@ -52,3 +52,13 @@ summary.RCTtoolbox.power.analysis <- function(object, ...) {
   printCoefmat(show, cs.ind = 0)
   cat("\n")
 }
+
+#'
+#' Summary of linear model
+#'
+#' @method summary RCTtoolbox.lm
+#'
+#'
+summary.RCTtoolbox.lm <- function(object, ...) {
+  lapply(object$result, summary, ...)
+}

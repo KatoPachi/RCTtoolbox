@@ -54,16 +54,16 @@ create_RCTtoolbox <- function(baseline = NULL,
 
   # parse covariate
   if (!is.null(covariate)) {
-    if (!is.list(covariate)) formula_x <- list(covariate)
-    xvec <- unique(unlist(lapply(formula_x, all.vars)))
+    if (!is.list(covariate)) covariate <- list(covariate)
+    xvec <- unique(unlist(lapply(covariate, all.vars)))
   } else {
-    formula_x <- xvec <- NULL
+    covariate <- xvec <- NULL
   }
 
   # crate R6 class
   RCTtoolbox$new(
     formula_yd,
-    formula_x,
+    covariate,
     yvec,
     xvec,
     dvec,

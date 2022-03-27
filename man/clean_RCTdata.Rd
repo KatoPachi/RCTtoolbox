@@ -9,6 +9,7 @@ clean_RCTdata(
   covariate = NULL,
   data = NULL,
   treat_levels = NULL,
+  treat_labels = NULL,
   subset = NULL,
   weights = NULL,
   cluster = NULL
