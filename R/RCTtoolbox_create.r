@@ -1,18 +1,41 @@
 #' Create New Toolbox
 #'
-#' Create an R6 class object called "RCT toolbox"
-#' for consistent RCT data analysis.
-#' The created object has method functions
-#' such as t-test and regression analysis.
+#' Create an R6 class object called "RCTtoolbox".
 #'
 #' @param baseline two-sided formula with
-#' outcome variables on LHS and treatment variable on RHS.
+#' one or more outcome variables on LHS and
+#' treatment variable on RHS.
 #' @param covariate (list of) one-sided formulas with
 #' covariates used in regression and balance test on RHS.
 #' @param data data.frame/tibble object you want to use.
-#' @param treat_levels character vector of levels of experimental arms.
-#' The first element must be control.
-#' @param treat_labels character vector of labels of experimental arms.
+#' @param treat_levels character vector. Levels of experimental arms.
+#' The first element is control arm.
+#' @param treat_labels character vector.
+#' Labels of experimental arms corresponding to \code{treat_levels}.
+#' Default is to use \code{treat_levels} as labels.
+#'
+#' @return R6 object with "RCTtoolbox" class.
+#' The returned object has following fields and methods
+#' \itemize{
+#'   \item \code{data}: Field.
+#'     Store data.frame/tibble passed to \code{data} argument.
+#'     You can access via \code{$data}
+#'   \item \code{print()}: Method.
+#'     Print information about the returned object.
+#'     Run \code{$print()}
+#'   \item \code{ttest()}: Method.
+#'     Implement two-sided t-test or permutation test.
+#'     Run \code{$ttest()}
+#'   \item \code{power()}: Method.
+#'     Implement power analysis.
+#'     Run \code{$power()}
+#'   \item \code{balance()}: Method.
+#'     Implement balance test.
+#'     Run \code{$balance()}
+#'   \item \code{lm()}: Method.
+#'     Estimate linear model.
+#'     Run \code{$lm()}
+#' }
 #'
 #' @importFrom rlang f_lhs
 #' @importFrom rlang f_rhs
@@ -52,15 +75,15 @@ create_RCTtoolbox <- function(baseline = NULL,
   formula_yd <- lapply(yvec, function(x) formula(paste(x, "~", dvec)))
 
   # parse covariate
+  xvec <- NULL
   if (!is.null(covariate)) {
     if (!is.list(covariate)) covariate <- list(covariate)
     xvec <- unique(unlist(lapply(covariate, all.vars)))
-  } else {
-    covariate <- xvec <- NULL
   }
 
+
   # crate R6 class
-  RCTtoolbox$new(
+  rct <- RCTtoolbox$new(
     formula_yd,
     covariate,
     yvec,
@@ -70,4 +93,7 @@ create_RCTtoolbox <- function(baseline = NULL,
     treat_labels,
     data
   )
+
+  rct$print()
+  invisible(rct)
 }

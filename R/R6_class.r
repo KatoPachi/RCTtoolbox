@@ -25,14 +25,18 @@ RCTtoolbox <- R6::R6Class("RCTtoolbox",
     print = function(...) {
       cat("-- Activate Information ---------------------\n")
       cat("Create new toolbox (Class: RCTtoolbox)\n")
-      cat("- Outcomes: ", private$yvec, "\n")
-      cat("- Treatment: ", private$dvec, "\n")
-      cat("  - Control arm: ", private$dvec.levels[1], "\n")
+      cat("- Outcomes:", private$yvec, "\n")
+      cat("- Treatment:", private$dvec, "\n")
+      cat("  - Level:", private$dvec.levels)
+      cat(" (Control arm:", private$dvec.levels[1], ")\n")
+      cat("  - Label:", private$dvec.labels, "\n")
       cat("- Covariates: ", private$xvec, "\n")
-      cat("-- Methods ----------------------------------\n")
+      cat("-- Fields and Methods -----------------------\n")
+      cat("- data: Store data\n")
       cat("- print(): Show this message\n")
       cat("- ttest(): Run t-test\n")
       cat("- power(): Run power analysis\n")
+      cat("- balance(): Run balance test\n")
       cat("- lm(): Estimate linear model\n")
     },
     ttest = function(ctrl = NULL, ...) {

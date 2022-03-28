@@ -14,23 +14,47 @@ create_RCTtoolbox(
 }
 \arguments{
 \item{baseline}{two-sided formula with
-outcome variables on LHS and treatment variable on RHS.}
+one or more outcome variables on LHS and
+treatment variable on RHS.}
 
 \item{covariate}{(list of) one-sided formulas with
 covariates used in regression and balance test on RHS.}
 
 \item{data}{data.frame/tibble object you want to use.}
 
-\item{treat_levels}{character vector of levels of experimental arms.
-The first element must be control.}
+\item{treat_levels}{character vector. Levels of experimental arms.
+The first element is control arm.}
 
-\item{treat_labels}{character vector of labels of experimental arms.}
+\item{treat_labels}{character vector.
+Labels of experimental arms corresponding to \code{treat_levels}.
+Default is to use \code{treat_levels} as labels.}
+}
+\value{
+R6 object with "RCTtoolbox" class.
+The returned object has following fields and methods
+\itemize{
+\item \code{data}: Field.
+Store data.frame/tibble passed to \code{data} argument.
+You can access via \code{$data}
+\item \code{print()}: Method.
+Print information about the returned object.
+Run \code{$print()}
+\item \code{ttest()}: Method.
+Implement two-sided t-test or permutation test.
+Run \code{$ttest()}
+\item \code{power()}: Method.
+Implement power analysis.
+Run \code{$power()}
+\item \code{balance()}: Method.
+Implement balance test.
+Run \code{$balance()}
+\item \code{lm()}: Method.
+Estimate linear model.
+Run \code{$lm()}
+}
 }
 \description{
-Create an R6 class object called "RCT toolbox"
-for consistent RCT data analysis.
-The created object has method functions
-such as t-test and regression analysis.
+Create an R6 class object called "RCTtoolbox".
 }
 \examples{
 \dontrun{
