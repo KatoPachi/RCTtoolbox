@@ -70,6 +70,36 @@
 #'   \item{outcome}{Character. Outcome variable.}
 #' }
 #'
+#' @section Developer Note:
+#' A method \code{ttest()} provided by R6 object RCTtoolbox
+#' implements \code{RCTtoolbox.ttest$new()}
+#' which generates R6 object with "RCTtoolbox.ttest" class.
+#' Initialization of R6 object "RCTtoolbox.ttest" run
+#' \code{ttest_multi_mod_arm(private$formula.yd, self$data, private$dvec.levels,
+#' private$dvec.labels, ...)}
+#' where \code{...} accepts arguments explained in the section "Arguments."
+#' The first four arguments passed to \code{ttest_multi_mod_arm()} are
+#' \describe{
+#'   \item{\code{baseline}}{list of two-sided formula \code{outcome ~ treat}.
+#'     The method \code{ttest()} automatically
+#'     passes the private field \code{formula.yd} of R6 object "RCTtoolbox"
+#'     to this argument.}
+#'   \item{\code{data}}{data.frame/tibble object that you want to use.
+#'     The method \code{ttest()} automatically
+#'     passes a public field \code{data} of R6 object "RCTtoolbox"
+#'     to this argument.}
+#'   \item{\code{treat_levels}}{character vector. Level of experimental arms.
+#'     The first element is control arm.
+#'     The method \code{ttest()} automatically
+#'     passes the private field \code{dvec.levels} of R6 object "RCTtoolbox"
+#'     to this argument.}
+#'   \item{\code{treat_labels}}{character vector. Label of experimental arms
+#'     corresponding to \code{treat_levels}.
+#'     The method \code{ttest()} automatically
+#'     passes the private field \code{dvec.labels} of R6 object "RCTtoolbox"
+#'     to this argument.}
+#' }
+#'
 #' @examples
 #' \dontrun{
 #'   data(RubellaNudge)
