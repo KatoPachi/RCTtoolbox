@@ -39,23 +39,21 @@ RCTtoolbox <- R6::R6Class("RCTtoolbox",
       cat("- balance(): Run balance test\n")
       cat("- lm(): Estimate linear model\n")
     },
-    ttest = function(ctrl = NULL, ...) {
+    ttest = function(...) {
       RCTtoolbox.ttest$new(
         private$formula.yd,
         self$data,
         private$dvec.levels,
         private$dvec.labels,
-        ctrl,
         ...
       )
     },
-    power = function(ctrl = NULL, ...) {
+    power = function(...) {
       RCTtoolbox.power.analysis$new(
         private$dvec,
         self$data,
         private$dvec.levels,
         private$dvec.labels,
-        ctrl,
         ...
       )
     },
@@ -95,9 +93,9 @@ RCTtoolbox <- R6::R6Class("RCTtoolbox",
 RCTtoolbox.ttest <- R6::R6Class("RCTtoolbox.ttest",
   public = list(
     result = NULL,
-    initialize = function(baseline, data, levels, labels, ctrl = NULL, ...) {
+    initialize = function(baseline, data, levels, labels, ...) {
       self$result <- ttest_multi_mod_arm(
-        baseline, data, levels, labels, ctrl, ...
+        baseline, data, levels, labels, ...
       )
     },
     print = function(...) {
@@ -117,7 +115,7 @@ RCTtoolbox.ttest <- R6::R6Class("RCTtoolbox.ttest",
 RCTtoolbox.power.analysis <- R6::R6Class("RCTtoolbox.power.analysis",
   public = list(
     result = NULL,
-    initialize = function(treat, data, levels, labels, ctrl = NULL, ...) {
+    initialize = function(treat, data, levels, labels, ...) {
       self$result <- power_calculation(
         treat, data, levels, labels, ctrl, ...
       )

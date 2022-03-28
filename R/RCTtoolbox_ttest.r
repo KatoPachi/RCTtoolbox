@@ -14,8 +14,8 @@ wtd_mean <- function(x, w = NULL) {
 wtd_var <- function(x,
                     w = NULL,
                     se = TRUE,
-                    bootse = NULL,
-                    seed = 120511) {
+                    bootse = 0L,
+                    seed = 120511L) {
   if (is.null(w)) w <- rep_len(1, length(x))
   neff <- sum(w)^2 / sum(w^2)
   wtdmu <- wtd_mean(x, w)
@@ -24,7 +24,7 @@ wtd_var <- function(x,
   if (!se) {
     wtdv
   } else {
-    if (is.null(bootse)) {
+    if (bootse == 0L) {
       sqrt(wtdv / neff)
     } else {
       set.seed(seed)
@@ -47,9 +47,9 @@ ttest <- function(y1,
                   y0,
                   w1 = NULL,
                   w0 = NULL,
-                  bootse = NULL,
-                  bootp = NULL,
-                  seed = 120511) {
+                  bootse = 0L,
+                  bootp = 0L,
+                  seed = 120511L) {
   # number of observations
   n1 <- length(y1)
   n0 <- length(y0)
@@ -67,7 +67,7 @@ ttest <- function(y1,
   se0 <- wtd_var(y0, w0, bootse = bootse, seed = seed)
 
   # t-test or permutation test
-  if (is.null(bootp)) {
+  if (bootp == 0L) {
     t <- abs(mean1 - mean0) / sqrt(se1^2 + se0^2)
     df <- (se1^2 + se0^2)^2 /
       (se1^4 / (n1 - 1) + se0^4 / (n0 - 1))
@@ -134,9 +134,9 @@ ttest_multi_arm <- function(baseline = NULL,
                             treat_labels = NULL,
                             subset = NULL,
                             weights = NULL,
-                            bootse = NULL,
-                            bootp = NULL,
-                            seed = 120511) {
+                            bootse = 0L,
+                            bootp = 0L,
+                            seed = 120511L) {
   # clean data
   use <- clean_RCTdata(
     baseline,
@@ -176,7 +176,113 @@ ttest_multi_arm <- function(baseline = NULL,
   bind_res
 }
 
-# RCTtoolbox: T-test
+#' Method of RCTtoolbox: \code{ttest()}
+#'
+#' When you create R6 object "RCTtoolbox"
+#' via \code{\link{create_RCTtoolbox}}
+#' and run its method \code{ttest()},
+#' the method internally implements this function
+#' which performs two-sided t-test or permutation test.
+#'
+#' @param baseline list of two-sided formula \code{outcome ~ treat}.
+#' The method \code{ttest()} automatically provides this argument,
+#' using private field of R6 object "RCTtoolbox".
+#' @param data data.frame/tibble object that you want to use.
+#' The method \code{ttest()} automatically provides this argument,
+#' using a public field \code{data} of R6 object "RCTtoolbox".
+#' @param treat_levels character vector. Level of experimental arms.
+#' The first element is control arm.
+#' The method \code{ttest()} automatically provides this argument,
+#' using private field of R6 object "RCTtoolbox".
+#' @param treat_labels character vector. Label of experimental arms
+#' corresponding to \code{treat_levels}.
+#' The method \code{ttest()} automatically provides this argument,
+#' using private field of R6 object "RCTtoolbox".
+#' @param ctrl character vector. New control arm.
+#' If NULL (default),
+#' the first element of \code{treat_levels} is control arm.
+#' The method \code{ttest()} has this argument.
+#' @param subset subset condition.
+#' If NULL (default),
+#' full observations of \code{data} is used to implement t-test.
+#' The method \code{ttest()} has this argument.
+#' @param weights weight variable.
+#' If NULL (default),
+#' unbiased unweighted average and std.err. is calculated.
+#' The method \code{ttest()} has this argument.
+#' @param bootse integer.
+#' Number of bootstrap samples to calculate std.err. of mean.
+#' If 0 (default),
+#' theoretical std.err. of mean is calculated.
+#' The method \code{ttest()} has this argument.
+#' @param bootp integer.
+#' If 0 (default), welch two-sided t-test is implemented.
+#' If 1 or more, the permutation test is implemented
+#' (the number of permutations that randomly reallocate assignment
+#' to keep the sample size collected from each group).
+#' The method \code{ttest()} has this argument.
+#' @param seed integer.
+#' Seed value passed to the argument of \code{\link{set.seed}}.
+#' The method \code{ttest()} has this argument.
+#'
+#' @details
+#' A method \code{ttest()} internally run the function
+#' \code{function(...) {ttest_multi_mod_arm(
+#' private$formula.yd, self$data,
+#' private$dvec.levels, private$dvec.labels, ...
+#' )}}.
+#' Thus, you can provide additional arguments
+#' \code{ctrl}, \code{subset}, \code{weights}, \code{bootse},
+#' \code{bootp}, and \code{seed} via dot-dot-dot.
+#'
+#' @return data frame with 13 variables
+#' \describe{
+#'   \item{mean1}{Outcome average of each experimental arm}
+#'   \item{se1}{Std.err. of outcome average of each experimental arm}
+#'   \item{n1}{Number of observations of each experimental arm}
+#'   \item{mean0}{Outcome average of control arm}
+#'   \item{se0}{Std.err. of outcome average of control arm}
+#'   \item{n0}{Number of observations of control arm}
+#'   \item{diff}{Difference between "mean1" - "mean0"}
+#'   \item{t}{t-statistics when \code{bootp = 0L} (Two-sided t-test)}
+#'   \item{df}{degree of freedom of t-distribution
+#'     when \code{bootp = 0L} (Two-sided t-test)}
+#'   \item{pval}{p-value of difference mean test.
+#'     Pr(>|t|) when \code{bootp = 0L} (Two-sided t-test)
+#'     Pr(>|diff|) when \code{bootp > 0L} (Permutation test)}
+#'   \item{method}{Character. Method of difference mean test.}
+#'   \item{arms}{Factor. Experimental arms}
+#'   \item{outcome}{Character. Outcome variable.}
+#' }
+#'
+#' @section Return of method \code{ttest()}:
+#'
+#' When you run \code{ttest()} which is a method of RCTtoolbox class,
+#' it internally implements \code{ttest_multi_mod_arm}
+#' and create new R6 object with "RCTtoolbox.ttest" class.
+#' The returned object of \code{ttest_multi_mod_arm}
+#' is saved in a field \code{result}.
+#' Thus, you can access it via \code{$result}.
+#' RCTtoolbox.ttest class has two methods related to output:
+#' \describe{
+#'   \item{\code{plot()}}{Visualization of result.}
+#'   \item{\code{summary()}}{Print result in console.}
+#' }
+#'
+#' @examples
+#' \dontrun{
+#'   data(RubellaNudge)
+#'   rct <- create_RCTtoolbox(
+#'     atest + avacc ~ treat,
+#'     data = RubellaNudge,
+#'     treat_levels = LETTERS[1:7]
+#'   )
+#'
+#'   # two-sided t-test
+#'   rct$ttest()
+#'   # permutation test with control arm "C"
+#'   rct$ttest(bootp = 50, ctrl = "C")
+#' }
 #'
 #' @importFrom rlang enexpr
 #' @importFrom dplyr bind_rows
@@ -188,9 +294,9 @@ ttest_multi_mod_arm <- function(baseline = NULL,
                                 ctrl = NULL,
                                 subset = NULL,
                                 weights = NULL,
-                                bootse = NULL,
-                                bootp = NULL,
-                                seed = 120511) {
+                                bootse = 0L,
+                                bootp = 0L,
+                                seed = 120511L) {
   # list of baseline model
   if (!is.list(baseline)) baseline <- list(baseline)
 
