@@ -19,22 +19,26 @@ ttest_multi_mod_arm(
 }
 \arguments{
 \item{baseline}{list of two-sided formula \code{outcome ~ treat}.
-The method \code{ttest()} automatically provides this argument,
-using private field of R6 object "RCTtoolbox".}
+The method \code{ttest()} automatically
+passes the private field \code{formula.yd} of R6 object "RCTtoolbox"
+to this argument.}
 
 \item{data}{data.frame/tibble object that you want to use.
-The method \code{ttest()} automatically provides this argument,
-using a public field \code{data} of R6 object "RCTtoolbox".}
+The method \code{ttest()} automatically
+passes a public field \code{data} of R6 object "RCTtoolbox"
+to this argument.}
 
 \item{treat_levels}{character vector. Level of experimental arms.
 The first element is control arm.
-The method \code{ttest()} automatically provides this argument,
-using private field of R6 object "RCTtoolbox".}
+The method \code{ttest()} automatically
+passes the private field \code{dvec.levels} of R6 object "RCTtoolbox"
+to this argument.}
 
 \item{treat_labels}{character vector. Label of experimental arms
 corresponding to \code{treat_levels}.
-The method \code{ttest()} automatically provides this argument,
-using private field of R6 object "RCTtoolbox".}
+The method \code{ttest()} automatically
+passes the private field \code{dvec.labels} of R6 object "RCTtoolbox"
+to this argument.}
 
 \item{ctrl}{character vector. New control arm.
 If NULL (default),

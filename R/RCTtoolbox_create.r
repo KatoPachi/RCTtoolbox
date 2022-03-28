@@ -4,7 +4,7 @@
 #'
 #' @param baseline two-sided formula with
 #' one or more outcome variables on LHS and
-#' treatment variable on RHS.
+#' one treatment variable on RHS.
 #' @param covariate (list of) one-sided formulas with
 #' covariates used in regression and balance test on RHS.
 #' @param data data.frame/tibble object you want to use.
@@ -16,26 +16,50 @@
 #'
 #' @return R6 object with "RCTtoolbox" class.
 #' The returned object has following fields and methods
-#' \itemize{
-#'   \item \code{data}: Field.
+#' \describe{
+#'   \item{\code{data}}{Field.
 #'     Store data.frame/tibble passed to \code{data} argument.
-#'     You can access via \code{$data}
-#'   \item \code{print()}: Method.
+#'     You can access via \code{$data}}
+#'   \item{\code{print()}}{Method.
 #'     Print information about the returned object.
-#'     Run \code{$print()}
-#'   \item \code{ttest()}: Method.
+#'     Run \code{$print()}}
+#'   \item{\code{ttest()}}{Method.
 #'     Implement two-sided t-test or permutation test.
 #'     Run \code{$ttest()}
-#'     See \code{\link{ttest_multi_mod_arm}} for help.
-#'   \item \code{power()}: Method.
+#'     See \code{\link{ttest_multi_mod_arm}} for help.}
+#'   \item{\code{power()}}{Method.
 #'     Implement power analysis.
-#'     Run \code{$power()}
-#'   \item \code{balance()}: Method.
+#'     Run \code{$power()}}
+#'   \item{\code{balance()}}{Method.
 #'     Implement balance test.
-#'     Run \code{$balance()}
-#'   \item \code{lm()}: Method.
+#'     Run \code{$balance()}}
+#'   \item{\code{lm()}}{Method.
 #'     Estimate linear model.
-#'     Run \code{$lm()}
+#'     Run \code{$lm()}}
+#' }
+#'
+#' @section Private fields:
+#' The created R6 object has also private fields.
+#' You cannot access from the outside.
+#' However, methods of RCTtoolbox use private fields.
+#' A list of private fields is as follows:
+#' \describe{
+#'   \item{formula.yd}{List of two-sided formula
+#'     \code{outcome ~ treatment}.
+#'     If you pass \code{y1 + y2 ~ d} to
+#'     the argument \code{baseline},
+#'     \code{formula.yd} refers to
+#'     \code{list(y1 ~ d, y2 ~ d)}.}
+#'   \item{formula.x}{Lists of one-sided formula
+#'     with covariates on RHS
+#'     which is passed to the argument \code{covariate}.}
+#'   \item{yvec}{Character vector of outcome variables.}
+#'   \item{xvec}{Character vector of covariates.}
+#'   \item{dvec}{Character of treatment.}
+#'   \item{dvec.levels}{Character vector
+#'     passed to the argument \code{treat_levels}.}
+#'   \item{dvec.labels}{Character vector
+#'     passed to the argument \code{treat_labels}.}
 #' }
 #'
 #' @importFrom rlang f_lhs
