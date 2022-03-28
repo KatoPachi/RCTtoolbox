@@ -1,8 +1,4 @@
-#' Calculate sample average
-#'
-#' @param x numeric vector
-#' @param w numeric vector of weight.
-#' If NULL, unweighted sample average is calculated.
+# Calculate sample average
 #'
 #' @importFrom stats weighted.mean
 #'
@@ -11,15 +7,7 @@ wtd_mean <- function(x, w = NULL) {
   weighted.mean(x, w)
 }
 
-#'
-#' Calculate unbiased variance and standard error
-#'
-#' @param x numeric vector
-#' @param w numeric vector of weight.
-#' If NULL, unweighted unbiased estimator is calculated.
-#' @param se logical. Return standard error (TRUE) or variance (FALSE)
-#' @param bootse numeric. Number of bootstrap sample to calculate se.
-#' @param seed numeric. seed value.
+# Calculate unbiased variance and standard error
 #'
 #' @importFrom stats sd
 #'
@@ -51,21 +39,7 @@ wtd_var <- function(x,
   }
 }
 
-#'
-#' Perform Two-Sided T-Test/Permutation Test
-#'
-#' @param y1 numeric. Outcome in group 1.
-#' @param y0 numeric. Outcome in group 0.
-#' @param w1 numeric. Weight in group 1.
-#' If NULL, unweighted sample average is calculated.
-#' @param w0 numeric. Weight in group 0.
-#' If NULL, unweighted sample average is calculated.
-#' @param bootse numeric. Number of bootstrap sample to calculate se.
-#' If NULL, se is calculated by effective sample size.
-#' @param bootp numeric. Number of re-randomization
-#' to conduct permutation test.
-#' If NULL, perform (welch) two-sided t-test.
-#' @param seed numeric. seed value.
+# Perform Two-Sided T-Test/Permutation Test
 #'
 #' @importFrom stats pt
 #'
@@ -149,25 +123,10 @@ ttest <- function(y1,
 
 }
 
-#'
-#' T-test for Multiple Experimental Arms
-#'
-#' @param baseline formula. `outcome ~ treatment`.
-#' @param data data.frame/tibble object you want to use.
-#' @param treat_levels order of experimental arms
-#' @param treat_labels labels of experimental arms
-#' @param subset subset condition.
-#' @param weights weight variable.
-#' @param bootse numeric. Number of bootstrap sample to calculate se.
-#' If NULL, se is calculated by effective sample size.
-#' @param bootp numeric. Number of re-randomization
-#' to conduct permutation test.
-#' If NULL, perform (welch) two-sided t-test.
-#' @param seed numeric. seed value.
+# T-test for Multiple Experimental Arms
 #'
 #' @importFrom dplyr bind_rows
 #' @importFrom rlang f_lhs
-#'
 #'
 ttest_multi_arm <- function(baseline = NULL,
                             data = NULL,
@@ -217,43 +176,10 @@ ttest_multi_arm <- function(baseline = NULL,
   bind_res
 }
 
-#' RCTtoolbox: T-test
-#'
-#' @description This function performs a t-test to test the null hypothesis
-#' that there is no mean difference between the two groups.
-#' When there are three or more treatment groups,
-#' this function tests the difference of mean between
-#' the control group specified by the user with the `ctrl` argument
-#' and each group (including the control group).
-#'
-#' @param baseline (list of) baseline formulas. `outcome ~ treatment`.
-#' @param data data.frame/tibble object you want to use.
-#' @param treat_levels order of experimental arms
-#' @param treat_labels labels of experimental arms
-#' @param ctrl specify control arm if you want change
-#' @param subset subset condition.
-#' @param weights weight variable.
-#' @param bootse numeric. Number of bootstrap sample to calculate se.
-#' If NULL, se is calculated by effective sample size.
-#' @param bootp numeric. Number of re-randomization
-#' to conduct permutation test.
-#' If NULL, perform (welch) two-sided t-test.
-#' @param seed numeric. seed value.
+# RCTtoolbox: T-test
 #'
 #' @importFrom rlang enexpr
 #' @importFrom dplyr bind_rows
-#'
-#' @examples
-#' \dontrun{
-#' data(RubellaNudge)
-#' rct <- create_RCTtoolbox(
-#'   atest + avacc ~ treat,
-#'   data = subset(RubellaNudge, coupon == 1),
-#'   treat_levels = LETTERS[1:7]
-#' )
-#' rct$ttest()$summary()
-#' rct$ttest(ctrl = "C", bootp = 50)$summary()
-#' }
 #'
 ttest_multi_mod_arm <- function(baseline = NULL,
                                 data = NULL,

@@ -69,50 +69,12 @@ ttest_power <- function(n0,
 }
 
 #'
-#' Power Analysis of Two Sided T-Test for RCT with Multiple Arms
-#'
-#' @description This function performs a two-sided t-test power analysis
-#' given the sample sizes of the treatment and control groups.
-#' Calculate the missing value among the effect size, significance level,
-#' and power.
-#' For the effect size, the non-standardized effect
-#' (absolute value of the difference between the average outcomes)
-#' is also calculated.
-#' If some variable is specified in the `std_dev` argument,
-#' the square root of the mean of variances of specified variable
-#' of the two group is the standard deviation.
-#'
-#' @param treat A string of treatment variables
-#' @param data data which you want to use.
-#' @param treat_levels original level of treatment arms.
-#' The first level is control arm.
-#' @param treat_labels label of treatment arms corresponding to original level.
-#' @param ctrl new control arm.
-#' @param subset subset condition.
-#' @param sd numeric (default is 1).
-#' The standard deviation used when calculating the mean difference.
-#' @param \dots some arguments passing in `ttest_power`.
-#' You can pass `d` (effect size), `alpha` (significant level), and
-#' `power` (power).
-#'
 #' @importFrom dplyr bind_rows
 #' @importFrom stats model.frame
 #' @importFrom stats model.matrix
 #' @importFrom stats formula
 #' @importFrom rlang enquo
 #' @importFrom rlang eval_tidy
-#'
-#' @examples
-#' \dontrun{
-#' data(RubellaNudge)
-#' rct <- create_RCTtoolbox(
-#'   atest + avacc ~ treat,
-#'   data = RubellaNudge,
-#'   treat_levels = LETTERS[1:7]
-#' )
-#'
-#' rct$power(alpha = 0.05, power = 0.8, sd = 0.2)$result
-#' }
 #'
 #'
 power_calculation <- function(treat = NULL,

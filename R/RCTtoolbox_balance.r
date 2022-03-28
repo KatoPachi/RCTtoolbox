@@ -1,14 +1,4 @@
-#' F-test of Overall Siginificance in Linear Regression
-#'
-#' @param baseline two-sided formula `covariate ~ treat`
-#' @param data data.frame/tibble you want to use
-#' @param treat_levels order of experimental arms
-#' @param treat_labels labels of experimental arms
-#' @param ctrl specify control arm if you want change
-#' @param subset subset condition of data
-#' @param weights weight variable
-#' @param cluster cluster variable
-#' @param \dots pass to `estimatr::lm_robust()`
+# Balance Test for one covariate
 #'
 #' @importFrom estimatr lm_robust
 #' @importFrom rlang enexpr
@@ -77,42 +67,9 @@ balance_test <- function(baseline = NULL,
   )
 }
 
-#' Blance Test by F-test of Overall Significance in Linear Regression
-#'
-#' @description This function performs a balance test of the treatment
-#' with multiple covariates.
-#' The balance test calculates the mean of each group
-#' and the F-test by linear regression analysis.
-#'
-#' @param covariate character vector of covariates
-#' @param treat character of variable name of experimental arm
-#' @param data data.frame/tibble you want to use
-#' @param treat_levels order of experimental arms
-#' @param treat_labels labels of experimental arms
-#' @param ctrl specify control arm if you want change
-#' @param subset subset condition of data
-#' @param weights weight variable
-#' @param cluster cluster variable
-#' @param \dots pass to `estimatr::lm_robust()`
-#'
-#' @return A data frame with `balance_test` class
+# Balance Test by F-test of Overall Significance in Linear Regression
 #'
 #' @importFrom dplyr bind_rows
-#'
-#' @examples
-#' \dontrun{
-#' data(RubellaNudge)
-#' rct <- create_RCTtoolbox(
-#'   atest + avacc ~ treat,
-#'   ~ age + educ,
-#'   RubellaNudge,
-#'   LETTERS[1:7]
-#' )
-#'
-#' rct$balance(subset = coupon == 1)$result
-#'
-#' }
-#'
 #'
 balance_test_multi_var <- function(covariate = NULL,
                                    treat = NULL,

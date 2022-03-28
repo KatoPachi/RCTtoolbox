@@ -1,44 +1,9 @@
-#' Fitting Models by OLS
+# Fitting Models by OLS
 #'
-#' @description This function generates multiple regression models
-#' by passing multiple baseline models
-#' (two-sided formula consisting of outcomes and treatments) and
-#' multiple covariate models (ons-sided formula) as arguments.
-#' In addition, the generated regression model is fitted
-#' by the least squares method of the `lm_robust` function
-#' in the {estimatr} package.
-#'
-#' @param baseline two-sided formula with
-#' outcome variables on LHS and treatment variable on RHS.
-#' @param covariate (list of) one-sided formulas with
-#' covariates used in regression and balance test on RHS.
-#' @param data data.frame/tibble object you want to use.
-#' @param treat_levels character vector of levels of experimental arms.
-#' The first element must be control.
-#' @param treat_labels character vector of labels of experimental arms.
-#' @param ctrl string of new control arm
-#' @param subset subset condition of data
-#' @param weights weight variable
-#' @param cluster cluster variable
-#' @param only_dmod logical. estimate linear model without covariates?
-#' @param \dots other arguments passed in `estimatr::lm_robust`
 #'
 #' @importFrom estimatr lm_robust
 #' @importFrom stats formula
 #' @importFrom rlang f_lhs
-#' @examples
-#' \dontrun{
-#' data(RubellaNudge)
-#' rct <- create_RCTtoolbox(
-#'   atest + avacc ~ treat,
-#'   ~ age + educ,
-#'   RubellaNudge,
-#'   LETTERS[1:7]
-#' )
-#'
-#' rct$lm(subset = coupon == 1)$summary()
-#'
-#' }
 #'
 #'
 rct_lm <- function(baseline = NULL,

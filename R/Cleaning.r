@@ -1,13 +1,3 @@
-#' Shape dataset
-#'
-#' @param baseline formula. `outcome ~ treatment`.
-#' @param covariate one-sided formula. `. ~ . + x1 + x2`.
-#' @param data data.frame/tibble object you want to use.
-#' @param treat_levels order of experimental arms
-#' @param treat_labels labels of experimental arms
-#' @param subset subset condition.
-#' @param weights weight variable.
-#' @param cluster cluster variable.
 #'
 #' @importFrom stats update
 #' @importFrom stats na.omit
@@ -83,14 +73,7 @@ clean_RCTdata <- function(baseline = NULL,
   )
 }
 
-#' Reorder of treatment arms
-#'
-#' @param treat_levels original level of treatment arms.
-#' The first level is control arm.
-#' @param treat_labels label of treatment arms corresponding to original level.
-#' @param ctrl new control arm.
-#'
-#'
+# Reorder of treatment arms
 reorder_arms <- function(treat_levels = NULL,
                          treat_labels = NULL,
                          ctrl = NULL) {
