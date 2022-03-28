@@ -26,7 +26,7 @@
 #'   \item{\code{ttest()}}{Method.
 #'     Implement two-sided t-test or permutation test.
 #'     Run \code{$ttest()}
-#'     See \code{\link{ttest_multi_mod_arm}} for help.}
+#'     See \link{ttest} for help.}
 #'   \item{\code{power()}}{Method.
 #'     Implement power analysis.
 #'     Run \code{$power()}}
