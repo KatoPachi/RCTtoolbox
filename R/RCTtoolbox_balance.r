@@ -1,113 +1,98 @@
-# Balance Test for one covariate
+#' Method of RCTtoolbox: \code{balance()}
 #'
-#' @importFrom estimatr lm_robust
-#' @importFrom rlang enexpr
-#' @importFrom stats pf
-#' @importFrom stats formula
-#' @importFrom rlang f_lhs
-#' @importFrom rlang f_rhs
+#' When you create R6 object "RCTtoolbox"
+#' via \code{\link{create_RCTtoolbox}}
+#' and run its method \code{balance()},
+#' the method internally implements a function
+#' that performs balance test.
+#' The method \code{balance()} provides some arguments.
+#' See the section "Arguments."
 #'
+#' @param ctrl character. New control arm.
+#' If NULL (default),
+#' the first element of \code{treat_levels} is control arm.
+#' @param subset subset condition.
+#' If NULL (default),
+#' full observations of \code{data} is used to implement balance test.
+#' @param weights weight variable for weighted least squares.
+#' If NULL (default), implement ordinary least squares.
+#' @param cluster cluster variable for clustered standard error.
+#' If NULL (default), standard error is not clustered.
+#' @param \dots arguments passed to \code{\link[estimatr]{lm_robust}}.
 #'
-balance_test <- function(baseline = NULL,
-                         data = NULL,
-                         treat_levels = NULL,
-                         treat_labels = NULL,
-                         ctrl = NULL,
-                         subset = NULL,
-                         weights = NULL,
-                         cluster = NULL,
-                         ...) {
-  # data shape
-  use <- clean_RCTdata(
-    baseline,
-    data = data,
-    treat_levels = treat_levels,
-    treat_labels = treat_labels,
-    subset = subset,
-    weights = weights,
-    cluster = cluster
-  )
-
-  # calculate mean value in each arm
-  y <- use$outcome
-  d <- use$design[, -1]
-  w <- use$weights
-
-  ctrl <- as.logical(1 - rowSums(d))
-  mu0 <- wtd_mean(y[ctrl], w[ctrl])
-  mu1 <- apply(d, 2, function(x) {
-    treated <- as.logical(x)
-    wtd_mean(y[treated], w[treated])
-  })
-  mu <- c(mu0, mu1)
-
-  # implement F-test
-  reg <- estimatr::lm_robust(
-    y ~ 1 + d,
-    weights = w,
-    clusters = use$cluster,
-    ...
-  )
-
-  fstat <- reg$fstatistic
-  p_fstat <- pf(fstat[1], fstat[2], fstat[3], lower.tail = FALSE)
-
-  # output
-  data.frame(
-    x = all.vars(f_lhs(baseline)),
-    item = c(
-      treat_labels[1],
-      gsub(all.vars(f_rhs(baseline)), "", names(mu1)),
-      "fstat",
-      "df1",
-      "df2",
-      "p-value"
-    ),
-    val = c(mu, fstat[1], fstat[2], fstat[3], p_fstat)
-  )
-}
-
-# Balance Test by F-test of Overall Significance in Linear Regression
+#' @return R6 object with "RCTtoolbox.balance.test" class.
+#' The returned object has following field and methods:
+#' \describe{
+#'   \item{\code{result}}{Field.
+#'     Data frame including estimated result.
+#'     See the section "Data Field."}
+#'   \item{\code{print()}}{Method.
+#'     Print information about the returned object.
+#'     Run \code{$print()}.}
+#'   \item{\code{table()}}{Method.
+#'     Create output table of balance test.
+#'     Run \code{$table()}.}
+#' }
 #'
-#' @importFrom dplyr bind_rows
+#' @section Result Field:
+#' The R6 object with "RCTtoolbox.balance.test" class has \code{result} field.
+#' This field has a data frame with 3 variables:
+#' \describe{
+#'   \item{x}{Character. Covariates.}
+#'   \item{item}{Factor.
+#'     Label of experimental arms, f-value,
+#'     degree of freedoms of F-distribution, p-value of F.}
+#'   \item{val}{Numeric. Value corresponding to item.}
+#' }
 #'
-balance_test_multi_var <- function(covariate = NULL,
-                                   treat = NULL,
-                                   data = NULL,
-                                   treat_levels = NULL,
-                                   treat_labels = NULL,
-                                   ctrl = NULL,
-                                   subset = NULL,
-                                   weights = NULL,
-                                   cluster = NULL,
-                                   ...) {
-  # order of experimental arms
-  order_d <- reorder_arms(treat_levels, treat_labels, ctrl)
-
-  # list of model
-  model <- lapply(covariate, function(x) formula(paste(x, "~", treat)))
-
-  # implement F-test
-  res <- lapply(
-    model,
-    balance_test,
-    data,
-    order_d$levels,
-    order_d$labels,
-    ctrl,
-    enexpr(subset),
-    enexpr(weights),
-    enexpr(cluster),
-    ...
-  )
-  res <- bind_rows(res)
-
-  # convert factor
-  res$item <- factor(
-    res$item,
-    c(order_d$labels, "fstat", "df1", "df2", "p-value")
-  )
-
-  # output
-  res
-}
+#' @section Developer Note:
+#' The method \code{balance()} provided by R6 object RCTtoolbox
+#' implements \code{RCTtoolbox.balance.test$new()}
+#' which generates R6 object with "RCTtoolbox.balance.test" class.
+#' Initialization of R6 object "RCTtoolbox.balance.test" run
+#' \code{balance_test_multi_var(private$xvec, private$dvec,
+#' self$data, private$dvec.levels, private$dvec.labels, ...)}
+#' where \code{...} accepts arguments explained in the section "Arguments."
+#' The first five arguments passed to \code{balance_test_multi_var()} are
+#' \describe{
+#'   \item{\code{covariate}}{Character vector. Covariate.
+#'     The method \code{balance()} automatically
+#'     passes the private field \code{xvec} of R6 object "RCTtoolbox"
+#'     to this argument.}
+#'   \item{\code{treat}}{Character vector. Treatment.
+#'     The method \code{balance()} automatically
+#'     passes the private field \code{dvec} of R6 object "RCTtoolbox"
+#'     to this argument.}
+#'   \item{\code{data}}{data.frame/tibble object that you want to use.
+#'     The method \code{ttest()} automatically
+#'     passes a public field \code{data} of R6 object "RCTtoolbox"
+#'     to this argument.}
+#'   \item{\code{treat_levels}}{character vector. Level of experimental arms.
+#'     The first element is control arm.
+#'     The method \code{ttest()} automatically
+#'     passes the private field \code{dvec.levels} of R6 object "RCTtoolbox"
+#'     to this argument.}
+#'   \item{\code{treat_labels}}{character vector. Label of experimental arms
+#'     corresponding to \code{treat_levels}.
+#'     The method \code{ttest()} automatically
+#'     passes the private field \code{dvec.labels} of R6 object "RCTtoolbox"
+#'     to this argument.}
+#' }
+#'
+#' @examples
+#' \dontrun{
+#'   data(RubellaNudge)
+#'   rct <- create_RCTtoolbox(
+#'     atest + avacc ~ treat,
+#'     ~ age + educ,
+#'     RubellaNudge,
+#'     LETTERS[1:7]
+#'   )
+#'
+#' # balance test
+#' rct$balance()$result
+#' }
+#'
+#' @name balance
+#'
+NULL

@@ -36,7 +36,7 @@ The returned object has following field and methods:
 \describe{
 \item{\code{result}}{Field.
 Data frame including estimated result.
-See the section "Data Field."}
+See the section "Result Field."}
 \item{\code{print()}}{Method.
 Print information about the returned object.
 Run \code{$print()}.}

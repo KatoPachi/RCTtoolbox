@@ -25,18 +25,20 @@
 #'     Run \code{$print()}}
 #'   \item{\code{ttest()}}{Method.
 #'     Implement two-sided t-test or permutation test.
-#'     Run \code{$ttest()}
+#'     Run \code{$ttest()}.
 #'     See \link{ttest} for help.}
 #'   \item{\code{power()}}{Method.
 #'     Implement power analysis.
-#'     Run \code{$power()}
+#'     Run \code{$power()}.
 #'     See \link{power} for help.}
 #'   \item{\code{balance()}}{Method.
 #'     Implement balance test.
-#'     Run \code{$balance()}}
+#'     Run \code{$balance()}.
+#'     See \link{balance} for help.}
 #'   \item{\code{lm()}}{Method.
 #'     Estimate linear model.
-#'     Run \code{$lm()}}
+#'     Run \code{$lm()}.
+#'     See \link{lm} for help.}
 #' }
 #'
 #' @section Private fields:
