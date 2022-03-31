@@ -4,7 +4,7 @@
 \alias{ttest}
 \title{Method of RCTtoolbox: \code{ttest()}}
 \arguments{
-\item{ctrl}{character vector. New control arm.
+\item{ctrl}{character. New control arm.
 If NULL (default),
 the first element of \code{treat_levels} is control arm.}
 
@@ -34,7 +34,7 @@ Seed value passed to the argument of \code{\link{set.seed}}.}
 R6 object with "RCTtoolbox.ttest" class.
 The returned object has following field and methods:
 \describe{
-\item{\code{data}}{Field.
+\item{\code{result}}{Field.
 Data frame including estimated result.
 See the section "Data Field."}
 \item{\code{print()}}{Method.
@@ -57,10 +57,10 @@ that performs two-sided t-test or permutation test.
 The method \code{ttest()} provides some arguments.
 See the section "Arguments."
 }
-\section{Data Field}{
+\section{Result Field}{
 
 
-The R6 object with "RCTtoolbox.ttest" class has \code{data} field.
+The R6 object with "RCTtoolbox.ttest" class has \code{result} field.
 This field has a data frame with 13 variables:
 \describe{
 \item{mean1}{Outcome average of each experimental arm}

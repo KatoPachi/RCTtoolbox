@@ -45,7 +45,8 @@ Run \code{$ttest()}
 See \link{ttest} for help.}
 \item{\code{power()}}{Method.
 Implement power analysis.
-Run \code{$power()}}
+Run \code{$power()}
+See \link{power} for help.}
 \item{\code{balance()}}{Method.
 Implement balance test.
 Run \code{$balance()}}

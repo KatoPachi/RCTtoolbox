@@ -8,7 +8,7 @@
 #' The method \code{ttest()} provides some arguments.
 #' See the section "Arguments."
 #'
-#' @param ctrl character vector. New control arm.
+#' @param ctrl character. New control arm.
 #' If NULL (default),
 #' the first element of \code{treat_levels} is control arm.
 #' @param subset subset condition.
@@ -32,7 +32,7 @@
 #' @return R6 object with "RCTtoolbox.ttest" class.
 #' The returned object has following field and methods:
 #' \describe{
-#'   \item{\code{data}}{Field.
+#'   \item{\code{result}}{Field.
 #'     Data frame including estimated result.
 #'     See the section "Data Field."}
 #'   \item{\code{print()}}{Method.
@@ -46,9 +46,9 @@
 #'     Run \code{$summary()}.}
 #' }
 #'
-#' @section Data Field:
+#' @section Result Field:
 #'
-#' The R6 object with "RCTtoolbox.ttest" class has \code{data} field.
+#' The R6 object with "RCTtoolbox.ttest" class has \code{result} field.
 #' This field has a data frame with 13 variables:
 #' \describe{
 #'   \item{mean1}{Outcome average of each experimental arm}

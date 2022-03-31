@@ -117,7 +117,7 @@ RCTtoolbox.power.analysis <- R6::R6Class("RCTtoolbox.power.analysis",
     result = NULL,
     initialize = function(treat, data, levels, labels, ...) {
       self$result <- power_calculation(
-        treat, data, levels, labels, ctrl, ...
+        treat, data, levels, labels, ...
       )
     },
     print = function(...) {
