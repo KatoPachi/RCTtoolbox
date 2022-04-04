@@ -289,6 +289,7 @@ rcttable.RCTtoolbox.lm <- function(object,
 #' @importFrom flextable fontsize
 rcttable.RCTtoolbox.chi2test <- function(object,
                                          levels,
+                                         title = NULL,
                                          show.n0 = TRUE,
                                          outcome_label = NULL,
                                          value_label = NULL,
@@ -342,6 +343,7 @@ rcttable.RCTtoolbox.chi2test <- function(object,
           p * (`p-value` = rawvalue)
       ),
       ctab,
+      title = title,
       fmt = p.digits,
       align = align,
       output = output
@@ -425,6 +427,7 @@ rcttable.RCTtoolbox.chi2test <- function(object,
     tabu <- datasummary(
       (`Treatments` = d) ~ outcome * (` ` = Freq) * (` ` = rawvalue) * y,
       ctab,
+      title = title,
       fmt = 0,
       align = align,
       output = output
