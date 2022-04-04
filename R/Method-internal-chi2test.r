@@ -2,6 +2,7 @@
 #'
 #' @importFrom stats chisq.test
 #' @importFrom stats fisher.test
+#' @importFrom rlang f_rhs
 #'
 chi2test <- function(baseline = NULL,
                      data = NULL,
@@ -24,25 +25,25 @@ chi2test <- function(baseline = NULL,
 
   # design matrix without intercept
   dmat <- use$design[, -1]
-  
+  dvar <- as.character(f_rhs(baseline))
+
   # ctrl data
   ctrl <- as.logical(1 - rowSums(dmat))
   y0 <- use$outcome[ctrl]
 
   # condition of test_type
-  if (!(test_type %in% c("t", "f"))) {
-    abort_invalid_input("test_type", test_type, '"t" or "f')
-  }
-
   if (test_type == "t") {
-    apply(dmat, 2, function(x) {
+    res <- apply(dmat, 2, function(x) {
       # create cross-tabulation
       treated <- as.logical(x)
       y1 <- use$outcome[treated]
       y <- c(y1, y0)
-      d <- c(rep_len("Treat", length(y1)), rep_len("Ctrl", length(y0)))
+      d <- c(
+        rep_len("Treat", length(y1)),
+        rep_len(treat$labels[1], length(y0))
+      )
       tab <- table(y, d)
-      
+
       # fisher or chi-squared test
       if (nrow(tab) == 1 | ncol(tab) == 1) {
         message(paste(
@@ -61,6 +62,10 @@ chi2test <- function(baseline = NULL,
       # output
       list(tab = tab, p = pval)
     })
+
+    names(res) <- gsub(dvar, "", names(res))
+    res
+
   } else if (test_type == "f") {
     # create cross-tabulation
     vector_y1 <- apply(dmat, 2, function(x) {
@@ -68,10 +73,10 @@ chi2test <- function(baseline = NULL,
       use$outcome[treated]
     })
     vector_d1 <- lapply(names(vector_y1), function(x) {
-      rep_len(x, length(vector_y1[[x]]))
+      rep_len(gsub(dvar, "", x), length(vector_y1[[x]]))
     })
     y <- c(y0, unlist(vector_y1))
-    d <- c(rep_len("Ctrl", length(y0)), unlist(vector_d1))
+    d <- c(rep_len(treat$labels[1], length(y0)), unlist(vector_d1))
     tab <- table(y, d)
 
     # fisher or chi-squared test
@@ -91,6 +96,8 @@ chi2test <- function(baseline = NULL,
 
     # output
     list(tab = tab, p = pval)
+  } else {
+    abort_invalid_input("test_type", test_type, '"t" or "f')
   }
 }
 
@@ -110,7 +117,7 @@ chi2test_multi_mod <- function(baseline = NULL,
                                bootp = FALSE) {
   # list of baseline models
   if (!is.list(baseline)) baseline <- list(baseline)
-  
+
   # run chi2test
   res <- lapply(
     baseline,
@@ -128,5 +135,8 @@ chi2test_multi_mod <- function(baseline = NULL,
   # output
   labs <- lapply(baseline, function(m) as.character(f_lhs(m)))
   names(res) <- labs
-  res
+  list(
+    result = res,
+    method = list(type = test_type, fisher = fisher)
+  )
 }

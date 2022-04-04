@@ -2,10 +2,13 @@
 % Please edit documentation in R/RCTtoolbox-table.r
 \name{rcttable}
 \alias{rcttable}
-\title{Method: \code{table()}}
+\title{Post-Estimation Method: \code{table()}}
 \usage{
 rcttable(...)
 }
+\arguments{
+\item{\dots}{some arguments}
+}
 \description{
-Method: \code{table()}
+Post-Estimation Method: \code{table()}
 }

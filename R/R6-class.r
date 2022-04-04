@@ -34,10 +34,11 @@ RCTtoolbox <- R6::R6Class("RCTtoolbox",
       cat("-- Fields and Methods -----------------------\n")
       cat("- data: Store data\n")
       cat("- print(): Show this message\n")
-      cat("- ttest(): Run t-test\n")
+      cat("- ttest(): Run t-test/permutation test\n")
       cat("- power(): Run power analysis\n")
       cat("- balance(): Run balance test\n")
       cat("- lm(): Estimate linear model\n")
+      cat("- chi2test(): Run chi-square/fisher exact test\n")
     },
     ttest = function(...) {
       RCTtoolbox.ttest$new(
@@ -194,6 +195,17 @@ RCTtoolbox.chi2test <- R6::R6Class("RCTtoolbox.chi2test",
       self$result <- chi2test_multi_mod(
         yd, data, levels, labels, ...
       )
-    }
-  )
+      private$labels <- labels
+    },
+    print = function(...) {
+      cat("-- Activate Information ------------------------------\n")
+      cat("Estimate Linear Model (Class: RCTtoolbox.chi2test) \n")
+      cat("-- Fields and Methods --------------------------------\n")
+      cat("- result: Store estimated result\n")
+      cat("- print(): Show this message\n")
+      cat("- table(): Create output table\n")
+    },
+    table = function(...) rcttable(self, private$labels, ...)
+  ),
+  private = list(labels = NULL)
 )

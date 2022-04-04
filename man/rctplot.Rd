@@ -2,10 +2,13 @@
 % Please edit documentation in R/RCTtoolbox-plot.r
 \name{rctplot}
 \alias{rctplot}
-\title{Method: \code{plot()}}
+\title{Post-Estimation Method: \code{plot()}}
 \usage{
 rctplot(...)
 }
+\arguments{
+\item{\dots}{some arguments}
+}
 \description{
-Method: \code{plot()}
+Post-Estimation Method: \code{plot()}
 }

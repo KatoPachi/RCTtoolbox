@@ -273,3 +273,174 @@ rcttable.RCTtoolbox.lm <- function(object,
     tab
   }
 }
+
+# Class: RCTtoolbox.chi2test
+#'
+#' @importFrom dplyr bind_rows
+#' @importFrom dplyr recode
+#' @importFrom modelsummary datasummary
+#' @importFrom tables Format
+#' @importFrom magrittr %>%
+#' @importFrom kableExtra kable_styling
+#' @importFrom kableExtra add_header_above
+#' @importFrom kableExtra footnote
+#' @importFrom flextable add_footer_lines
+#' @importFrom flextable add_header_row
+#' @importFrom flextable fontsize
+rcttable.RCTtoolbox.chi2test <- function(object,
+                                         levels,
+                                         show.n0 = TRUE,
+                                         outcome_label = NULL,
+                                         value_label = NULL,
+                                         p.digits = 3,
+                                         size = 15,
+                                         footnote = NULL,
+                                         output = "kableExtra",
+                                         ...) {
+  res <- object$result
+  rawvalue <- function(x) x
+
+  if (res$method$type == "t") {
+    # create data frame
+    ctab <- NULL
+    for (y in names(res$result)) {
+      list_ctab <- lapply(names(res$result[[y]]), function(x) {
+        tab <- data.frame(t(res$result[[y]][[x]]$tab))
+        tab$p <- ifelse(tab$d == "Treat", res$result[[y]][[x]]$p, NA)
+        tab$d <- ifelse(tab$d == "Treat", x, as.character(tab$d))
+        tab$outcome <- y
+        tab
+      })
+      part_ctab <- bind_rows(list_ctab)
+      part_ctab <- part_ctab[!duplicated(part_ctab), ]
+      ctab <- rbind(ctab, part_ctab)
+
+    }
+
+    if (!show.n0) {
+      ctab <- ctab[ctab$y == 1, ]
+      ctab$y <- droplevels(ctab$y)
+    }
+
+    ctab$d <- factor(ctab$d, levels)
+    if (!is.null(outcome_label)) {
+      ctab$outcome <- dplyr::recode(ctab$outcome, !!!outcome_label)
+    }
+    if (!is.null(value_label)) {
+      ctab$y <- dplyr::recode(ctab$y, !!!value_label)
+    }
+
+    # datasummary
+    align <- paste0(
+      c("l", rep_len("c", (3 - !show.n0) * length(names(res$result)))),
+      collapse = ""
+    )
+
+    tabu <- datasummary(
+      (`Treatments` = d) ~ outcome * (
+        (` ` = Freq) * (` ` = rawvalue) * Format(digits = 0) * (` ` = y) +
+          p * (`p-value` = rawvalue)
+      ),
+      ctab,
+      fmt = p.digits,
+      align = align
+    )
+
+    if (!is.null(footnote)) footnote <- paste("Note:", footnote)
+
+    if (output == "kableExtra") {
+      tabu %>%
+        kableExtra::kable_styling(font_size = size, ...) %>%
+        kableExtra::footnote(
+          general_title = "",
+          general = footnote,
+          threeparttable = TRUE,
+          escape = FALSE
+        )
+    } else if (output == "flextable") {
+      tabu %>%
+        flextable::add_footer_lines(values = footnote) %>%
+        flextable::fontsize(size = size, part = "all")
+    } else {
+      tabu
+    }
+
+  } else if (res$method$type == "f") {
+    # create data frame
+    list_ctab <- lapply(names(res$result), function(x) {
+      data.frame(
+        t(res$result[[x]]$tab),
+        outcome = x
+      )
+    })
+    ctab <- bind_rows(list_ctab)
+
+    if (!show.n0) {
+      ctab <- ctab[ctab$y == 1, ]
+      ctab$y <- droplevels(ctab$y)
+    }
+
+    ctab$d <- factor(ctab$d, levels)
+    if (!is.null(outcome_label)) {
+      ctab$outcome <- dplyr::recode(ctab$outcome, !!!outcome_label)
+    }
+    if (!is.null(value_label)) {
+      ctab$y <- dplyr::recode(ctab$y, !!!value_label)
+    }
+
+    # create footnote of test result
+    foot <- NULL
+    for (i in names(res$result)) {
+      outcome <- if (!is.null(outcome_label)) {
+        dplyr::recode(i, !!!outcome_label)
+      } else {
+        i
+      }
+
+      p <- res$result[[i]]$p
+
+      pfmt <- paste("p = {round(p,", p.digits, ")}.")
+      fmt <- paste("{fisher} (Outcome: {outcome}):", pfmt)
+
+      if (is.null(foot)) {
+        foot <- glue(fmt)
+      } else {
+        foot <- glue(paste("{foot}", fmt))
+      }
+    }
+
+    # datasummary
+    align <- paste0(
+      c("l", rep_len("c", (2 - !show.n0) * length(names(res$result)))),
+      collapse = ""
+    )
+
+    tabu <- datasummary(
+      (`Treatments` = d) ~ outcome * (` ` = Freq) * (` ` = rawvalue) * y,
+      ctab,
+      fmt = 0,
+      align = align
+    )
+
+    fnote <- paste("Note:", foot)
+    if (!is.null(footnote)) fnote <- paste(fnote, footnote)
+
+    if (output == "kableExtra") {
+      tabu %>%
+        kableExtra::kable_styling(font_size = size, ...) %>%
+        kableExtra::footnote(
+          general_title = "",
+          general = fnote,
+          threeparttable = TRUE,
+          escape = FALSE
+        )
+    } else if (output == "flextable") {
+      tabu %>%
+        flextable::add_footer_lines(values = fnote) %>%
+        flextable::fontsize(size = size, part = "all")
+    } else {
+      tabu
+    }
+
+  }
+}
