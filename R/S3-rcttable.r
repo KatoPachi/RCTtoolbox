@@ -399,6 +399,12 @@ rcttable.RCTtoolbox.chi2test <- function(object,
 
       p <- res$result[[i]]$p
 
+      fisher <- if (res$method$fisher) {
+        "Fisher exact test"
+      } else {
+        "Chi-square test"
+      }
+
       pfmt <- paste("p = {round(p,", p.digits, ")}.")
       fmt <- paste("{fisher} (Outcome: {outcome}):", pfmt)
 
