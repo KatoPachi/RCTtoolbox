@@ -38,3 +38,15 @@ abort_empty_num <- function(obs, true) {
     obs = obs
   )
 }
+
+abort_invalid_input <- function(arg, obs, true) {
+  msg <- glue("`{arg}` must be {true}")
+  msg <- glue("{msg}; not {obs}")
+  abort(
+    "error_invalid_input",
+    message = msg,
+    arg = arg,
+    obs = obs,
+    true = true
+  )
+}

@@ -77,6 +77,15 @@ RCTtoolbox <- R6::R6Class("RCTtoolbox",
         private$dvec.labels,
         ...
       )
+    },
+    chi2test = function(...) {
+      RCTtoolbox.chi2test$new(
+        private$formula.yd,
+        self$data,
+        private$dvec.levels,
+        private$dvec.labels,
+        ...
+      )
     }
   ),
   private = list(
@@ -176,4 +185,15 @@ RCTtoolbox.lm <- R6::R6Class("RCTtoolbox.lm",
     table = function(...) rcttable(self, private$dvar, ...)
   ),
   private = list(dvar = NULL)
+)
+
+RCTtoolbox.chi2test <- R6::R6Class("RCTtoolbox.chi2test",
+  public = list(
+    result = NULL,
+    initialize = function(yd, data, levels, labels, ...) {
+      self$result <- chi2test_multi_mod(
+        yd, data, levels, labels, ...
+      )
+    }
+  )
 )
