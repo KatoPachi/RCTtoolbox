@@ -343,7 +343,8 @@ rcttable.RCTtoolbox.chi2test <- function(object,
       ),
       ctab,
       fmt = p.digits,
-      align = align
+      align = align,
+      output = output
     )
 
     if (!is.null(footnote)) footnote <- paste("Note:", footnote)
@@ -425,7 +426,8 @@ rcttable.RCTtoolbox.chi2test <- function(object,
       (`Treatments` = d) ~ outcome * (` ` = Freq) * (` ` = rawvalue) * y,
       ctab,
       fmt = 0,
-      align = align
+      align = align,
+      output = output
     )
 
     fnote <- paste("Note:", foot)
