@@ -293,9 +293,9 @@ rcttable.RCTtoolbox.chi2test <- function(object,
                                          outcome_label = NULL,
                                          value_label = NULL,
                                          p.digits = 3,
-                                         size = 15,
                                          footnote = NULL,
-                                         output = "kableExtra",
+                                         size = getOption("RCTtoolbox.table_font_size"),
+                                         output = getOption("RCTtoolbox.table_output"),
                                          ...) {
   res <- object$result
   rawvalue <- function(x) x
