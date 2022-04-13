@@ -149,7 +149,7 @@ ttest_multi_arm <- function(baseline = NULL,
 
   # outcome, treatment, and weight vector
   y <- use$outcome
-  d <- use$design[, -1]
+  d <- use$design[, -1, drop = FALSE]
   w <- use$weights
 
   # control arms
